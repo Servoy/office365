@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: office365
+Bundle-Name: Office365 Javascript API
+Bundle-Version: 1.0.0
+Package-Type: Web-Service
+JS-ClientLibs: office365/lib/bridge.js;name=bridge;version=1.0.0
+
+Name: word/word.spec
+Web-Service: True
+
