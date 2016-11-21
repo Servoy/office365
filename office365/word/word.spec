@@ -3,9 +3,7 @@
 	"displayName": "word",
 	"version": 1,
  	"definition": "office365/word/word.js",
-	"libraries": [{
-	
-	}],
+	"libraries": [],
 	"model":
 	{
  	},
@@ -17,7 +15,7 @@
 					"type": "function",
 					"optional" : true
 				}],
-			"return" : "string"
+			"returns" : "string"
 		},
 		"getDocumentUrl": {
 	    	"parameters": [{
@@ -25,17 +23,16 @@
 					"type": "function",
 					"optional" : true
 				}],
-			"return" : "string"
+			"returns" : "string"
 		},
 		"getSelectedData": {
 	    	"parameters": [{
-					"name": "onSuccess",
-					"type": "function"
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
-				}]
+				}],
+			"returns" : "string"
+				
 		},
 		"setSelectedData": {
 	    	"parameters": [{
@@ -45,55 +42,44 @@
 					"name": "type",
 					"type": "string"
 				},{
-					"name": "onSuccess",
-					"type": "function"
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
-				}]
+				}],
+			"returns" : "boolean"
 		},
 		"insertText": {
 	    	"parameters": [{
 					"name": "text",
 					"type": "string"
 				},{
-					"name": "onSuccess",
-					"type": "function",
-					"optional" : true
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
-				}]
+				}],
+			"returns" : "string"
 		},
 		"insertMergeField": {
 	    	"parameters": [{
 					"name": "text",
 					"type": "string"
 				},{
-					"name": "onSuccess",
-					"type": "function",
-					"optional" : true
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
-				}]
+				}],
+			"returns" : "string"
 		},
 		"writeDocx": {
 	    	"parameters": [{
 					"name": "xml",
 					"type": "string"
 				},{
-					"name": "onSuccess",
-					"type": "function",
-					"optional" : true
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
-				}]
+				}],
+			"returns" : "string"
 		}
  	}
 }
