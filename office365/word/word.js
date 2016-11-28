@@ -113,21 +113,19 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				 * Returns the document body as a text
 				 *  */
 				var officeResultDeferred = $q.defer();
-				try {
-					Word.run(function(ctx) {
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						var result = body.getOoxml();
+				Word.run(function(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					var result = body.getOoxml();
 
-						return ctx.sync().then(function() {
-							console.log(result.value)
-							officeResultDeferred.resolve(result.value);
-						});
-
+					return ctx.sync().then(function() {
+						$log.debug(result.value)
+						officeResultDeferred.resolve(result.value);
 					});
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
-				}
+
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
 
 				return officeResultDeferred.promise;
 			},
@@ -136,20 +134,18 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				 * Returns the document body as a text
 				 *  */
 				var officeResultDeferred = $q.defer();
-				try {
-					Word.run(function(ctx) {
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						var result = body.getHtml();
+				Word.run(function(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					var result = body.getHtml();
 
-						return ctx.sync().then(function() {
-							console.log(result.value)
-							officeResultDeferred.resolve(result.value);
-						});
+					return ctx.sync().then(function() {
+						$log.debug(result.value)
+						officeResultDeferred.resolve(result.value);
 					});
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
-				}
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
 
 				return officeResultDeferred.promise;
 			},
@@ -165,16 +161,14 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					loadOptions = 'text';
 				}
 
-				try {
-					Word.run(function(ctx) {
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						ctx.load(body, loadOptions);
-						officeResultDeferred.resolve(body);
-					});
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
-				}
+				Word.run(function(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					ctx.load(body, loadOptions);
+					officeResultDeferred.resolve(body);
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
 
 				return officeResultDeferred.promise;
 			},
@@ -185,19 +179,43 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					insertLocation = Word.InsertLocation.end;
 				}
 
-				try {
-					Word.run(function(ctx) {
+				Word.run(insertText).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
 
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						ctx.load(body, 'text');
-						ctx.document.body.insertText(text, insertLocation);
-						return ctx.sync().then(function() {
+				function insertText(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					ctx.load(body, 'text');
+					ctx.document.body.insertText(text, insertLocation);
+					return ctx.sync().then(function() {
 							officeResultDeferred.resolve(true);
+						}, function(e) {
+							resolveError(e, onError, officeResultDeferred);
 						});
-					});
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+			insertHtmlToBody: function(htmlText, insertLocation, onError) {
+				var officeResultDeferred = $q.defer();
+
+				if (!insertLocation) {
+					insertLocation = Word.InsertLocation.end;
+				}
+
+				Word.run(insertHtml).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
+
+				function insertHtml(ctx) {
+					// Create a proxy object for the document body.
+					ctx.document.body.insertHtml(htmlText, insertLocation);
+					return ctx.sync().then(function() { // success
+							officeResultDeferred.resolve(true);
+						}, function(e) { // error
+							resolveError(e, onError, officeResultDeferred);
+						});
 				}
 
 				return officeResultDeferred.promise;
@@ -209,19 +227,64 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					insertLocation = Word.InsertLocation.end;
 				}
 
-				try {
-					Word.run(function(ctx) {
-						//var myPar = parent.ctx.document.body.insertOoxml('<pkg:package xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage"><pkg:part pkg:name="/_rels/.rels" pkg:contentType="application/vnd.openxmlformats-package.relationships+xml" pkg:padding="512"><pkg:xmlData><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships></pkg:xmlData></pkg:part><pkg:part pkg:name="/word/document.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"><pkg:xmlData><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ><w:body><w:p><w:r><w:t xml:space="preserve"> </w:t></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> MERGEFIELD  my-first-field  \* MERGEFORMAT </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r w:rsidR="00211A63"><w:rPr><w:noProof/></w:rPr><w:t>«my-first-field»</w:t></w:r><w:r><w:rPr><w:noProof/></w:rPr><w:fldChar w:fldCharType="end"/></w:r></w:p></w:body></w:document></pkg:xmlData></pkg:part></pkg:package>', 'End');
+				Word.run(insertOoxml).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
 
-						// Create a proxy object for the document body.
-						ctx.document.body.insertOoxml(ooxmlText, insertLocation);
-						return ctx.sync().then(function() {
+				function insertOoxml(ctx) {
+					//var myPar = parent.ctx.document.body.insertOoxml('<pkg:package xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage"><pkg:part pkg:name="/_rels/.rels" pkg:contentType="application/vnd.openxmlformats-package.relationships+xml" pkg:padding="512"><pkg:xmlData><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships></pkg:xmlData></pkg:part><pkg:part pkg:name="/word/document.xml" pkg:contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"><pkg:xmlData><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ><w:body><w:p><w:r><w:t xml:space="preserve"> </w:t></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> MERGEFIELD  my-first-field  \* MERGEFORMAT </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r w:rsidR="00211A63"><w:rPr><w:noProof/></w:rPr><w:t>«my-first-field»</w:t></w:r><w:r><w:rPr><w:noProof/></w:rPr><w:fldChar w:fldCharType="end"/></w:r></w:p></w:body></w:document></pkg:xmlData></pkg:part></pkg:package>', 'End');
+
+					// Create a proxy object for the document body.
+					ctx.document.body.insertOoxml(ooxmlText, insertLocation);
+					return ctx.sync().then(function() {
 							officeResultDeferred.resolve(true);
+						}, function(e) {
+							resolveError(e, onError, officeResultDeferred);
 						});
-					});
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
 				}
+
+				return officeResultDeferred.promise;
+			},
+			insertContentControl: function(tag, ops, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				// Run a batch operation against the Word object model.
+				Word.run(function(context) {
+
+					// Create a proxy range object for the current selection.
+					var range = context.document.getSelection();
+
+					// Queue a commmand to create the content control.
+					var contentControl = range.insertContentControl();
+					contentControl.tag = tag;
+					if (ops) {
+						if (ops.title) contentControl.title = ops.title;
+						if (ops.cannotDelete) contentControl.cannotDelete = ops.cannotDelete;
+						if (ops.cannotEdit) contentControl.cannotEdit = ops.cannotEdit;
+						if (ops.removeWhenEdited) contentControl.removeWhenEdited = ops.removeWhenEdited;
+						if (ops.placeholderText) contentControl.placeholderText = ops.placeholderText;
+						if (ops.color) contentControl.color = ops.color;
+						if (ops.style) contentControl.style = ops.style;
+					}
+
+					// Queue a command to load the id property for the content control you created.
+					context.load(contentControl, 'id');
+
+					// Synchronize the document state by executing the queued commands,
+					// and return a promise to indicate task completion.
+					return context.sync().then(function() {
+							var id = contentControl.id;
+							if (typeof (id) === "number") {
+								id = "" + id;
+							}
+							officeResultDeferred.resolve(id);
+						}, function(e) {
+							resolveError(e, onError, officeResultDeferred)
+						});
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred)
+				});
 
 				return officeResultDeferred.promise;
 			},
@@ -258,42 +321,60 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
+			setTagText: function(tag, text, onError) {
+				var officeResultDeferred = $q.defer();
+
+				Word.run(function(ctx) {
+					var ccs = ctx.document.contentControls.getByTag(tag);
+					ctx.load(ccs, { select: 'text' });
+					return ctx.sync().then(function() {
+						// Replace the text value for each of the content controls that
+						// have a tag called "customer". Highlight the content controls.
+						for (var i = 0; i < ccs.items.length; i++) {
+							ccs.items[i].insertText(text, "replace");
+						}
+					})// Synchronize the document state by executing the queued commands.
+					.then(ctx.sync).then(function() {
+						officeResultDeferred.resolve(true);
+					}).catch(function(e) {
+						resolveError(e, onError, officeResultDeferred)
+					})
+				});
+
+				return officeResultDeferred.promise;
+			},
 			selectBody: function(selectionMode, onError) {
 				var officeResultDeferred = $q.defer();
 
-				try {
-					Word.run(function(ctx) {
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						body.select(selectionMode);
-						return ctx.sync().then(function() {
-							officeResultDeferred.resolve(true);
-						});
+				Word.run(function(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					body.select(selectionMode);
+					return ctx.sync().then(function() {
+						officeResultDeferred.resolve(true);
 					});
-				} catch (e) {
+				}).catch(function(e) {
 					resolveError(e, onError, officeResultDeferred)
-				}
+				})
 
 				return officeResultDeferred.promise;
 			},
 			searchBody: function(searchText, searchOptions, onError) {
 				var officeResultDeferred = $q.defer();
 
-				try {
-					Word.run(function(ctx) {
-						// Create a proxy object for the document body.
-						var body = ctx.document.body;
-						var searchResults = body.search(searchText, searchOptions);
-						// TODO what else to include in the search ?
-						ctx.load(searchResults, 'text, id, title, font/size');
-						return ctx.sync().then(function() {
-							console.log(searchResults)
-							officeResultDeferred.resolve(searchResults.items);
-						});
+				Word.run(function(ctx) {
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					var searchResults = body.search(searchText, searchOptions);
+					// TODO what else to include in the search ?
+					ctx.load(searchResults, 'text, id, title, font/size');
+					return ctx.sync().then(function() {
+						$log.debug(searchResults)
+						officeResultDeferred.resolve(searchResults.items);
 					});
-				} catch (e) {
+				}).catch(function(e) {
 					resolveError(e, onError, officeResultDeferred)
-				}
+				})
 
 				return officeResultDeferred.promise;
 			},
@@ -349,7 +430,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					try {
 						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
 							var result = asyncResult.value;
-							console.log(result);
+							$log.debug(result);
 							var count = result.length;
 							var bindings = []
 							if (count) {
@@ -369,7 +450,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					// get each data async
 					function getDataAsync(data) {
 						if (data.status === Office.AsyncResultStatus.Succeeded) {
-							console.log(data)
+							$log.debug(data)
 							var item = {
 								id: data.asyncContext.id,
 								text: data.value,
@@ -384,6 +465,33 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 							officeResultDeferred.resolve(bindings);
 						}
 					}
+				}
+
+				return officeResultDeferred.promise;
+			},
+			goToBinding: function(id, selectBinding, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					var selectionMode = selectBinding ? Office.SelectionMode.Selected : Office.SelectionMode.None
+					//Go to binding by id.
+					Office.context.document.goToByIdAsync(id, Office.GoToType.Binding, { selectionMode: selectionMode }, callback);
+
+					// FIXME callback is not executed, i can't confirm if selection is done.
+					function callback(asyncResult) {
+						$log.debug(asyncResult)
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							officeResultDeferred.resolve(true);
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+
+					}
+					// TODO remove it
+					officeResultDeferred.resolve(true);
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
 				}
 
 				return officeResultDeferred.promise;
@@ -438,39 +546,12 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			goToBinding: function(id, selectBinding, onError) {
-				var officeResultDeferred = $q.defer();
-
-				try {
-					var selectionMode = selectBinding ? Office.SelectionMode.Selected : Office.SelectionMode.None
-					//Go to binding by id.
-					Office.context.document.goToByIdAsync(id, Office.GoToType.Binding, { selectionMode: selectionMode }, callback);
-
-					// FIXME callback is not executed, i can't confirm if selection is done.
-					function callback(asyncResult) {
-						console.log(asyncResult)
-						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-							officeResultDeferred.resolve(true);
-						} else {
-							resolveError(asyncResult.error, onError, officeResultDeferred);
-						}
-
-					}
-					// TODO remove it
-					officeResultDeferred.resolve(true);
-
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
-				}
-
-				return officeResultDeferred.promise;
-			},
 			setBindingData: function(id, text, onError) {
 
 				var officeResultDeferred = $q.defer();
 
 				try {
-					Office.select("bindings#" + id, onError).setDataAsync(text, { coercionType: "text" }, setDataCallback);
+					Office.select("bindings#" + id, resolveError).setDataAsync(text, setDataCallback);
 				} catch (e) {
 					resolveError(e, onError, officeResultDeferred);
 				}
@@ -492,7 +573,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				 // FIXME callback is not executed, i can't confirm if selection is done.
 				 function callback(asyncResult) {
-				 console.log(asyncResult)
+				 $log.debug(asyncResult)
 				 }
 
 				 // 2 release binding
@@ -505,7 +586,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				 // 2 release the binding callback
 				 function releaseByIdCallback(asyncResult) {
-				 console.log(asyncResult);
+				 $log.debug(asyncResult);
 				 if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
 				 // 3 replace the text of the binding
 				 Office.context.document.setSelectedDataAsync(text, { coercionType: Office.CoercionType.Text }, setSelectedDataCallback);
@@ -528,13 +609,13 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 		}
 	}]).run(function($rootScope, $services) {
 
-	requirejs.config({
-		//By default load any module IDs from js/lib
-		baseUrl: '/'
-	});
-
-	requirejs(["office365/lib/office.debug.js", "office365/lib/MicrosoftAjax.debug.js"], function(util) {
-			console.log("officejs loaded");
-		});
+	//	requirejs.config({
+	//		//By default load any module IDs from js/lib
+	//		baseUrl: '/'
+	//	});
+	//
+	//	requirejs(["office365/lib/office.debug.js", "office365/lib/MicrosoftAjax.debug.js"], function(util) {
+	//			$log.debug("officejs loaded");
+	//		});
 
 });

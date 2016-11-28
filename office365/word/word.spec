@@ -53,7 +53,7 @@
 				}],
 			"returns" : "boolean"
 		},
-			"getBodyText": {
+		"getBodyText": {
 	    	"parameters": [{
 					"name": "loadOptions",
 					"type": "object",
@@ -84,6 +84,21 @@
 		"insertTextToBody": {
 	    	"parameters": [{
 					"name": "text",
+					"type": "string"
+				},{
+					"name": "insertLocation",
+					"type": "string",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
+		"insertHtmlToBody": {
+	    	"parameters": [{
+					"name": "htmlText",
 					"type": "string"
 				},{
 					"name": "insertLocation",
@@ -127,7 +142,22 @@
 					"type": "function",
 					"optional" : true
 				}],
-			"returns" : "text"
+			"returns" : "string"
+		},
+		"insertContentControl" : {
+					"parameters": [{
+					"name": "tag",
+					"type": "string"
+				},{
+					"name": "contentControlOptions",
+					"type": "object",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "string"
 		},
 		"selectBody": {
 	    	"parameters": [{
@@ -227,6 +257,20 @@
 		"setBindingData": {
 	    	"parameters": [{
 					"name": "id",
+					"type": "string"
+				},{
+					"name": "text",
+					"type": "string"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
+		"setTagText": {
+			"parameters": [{
+					"name": "tag",
 					"type": "string"
 				},{
 					"name": "text",
