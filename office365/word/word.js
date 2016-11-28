@@ -1,4 +1,8 @@
 angular.module('office365Word', ['servoy']).factory("office365Word", ['$services', '$window', '$log', '$q', function($services, $window, $log, $q) {
+
+		// MANIFEST LINE: JS-ClientLibs: //appsforoffice.microsoft.com/lib/1/hosted/office.debug.js;version=2.2;name=office.js
+		// JS-ClientLibs: office365/lib/office.js;version=2.2;name=office.js,office365/lib/MicrosoftAjax.js;version=2.2;name=MicrosoftAjax.js,office365/lib/o15apptofilemappingtable.js;version=2.2;name=o15apptofilemappingtable.js
+
 		var scope = $services.getServiceScope('office365Word');
 		var Office = parent.Office;
 		var Word = parent.Word;
@@ -104,7 +108,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			getOoxml: function(onError) {
+			getBodyOoxml: function(onError) {
 				/**
 				 * Returns the document body as a text
 				 *  */
@@ -127,7 +131,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			getHtml: function(onError) {
+			getBodyHtml: function(onError) {
 				/**
 				 * Returns the document body as a text
 				 *  */
@@ -149,7 +153,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			getText: function(loadOptions, onError) {
+			getBodyText: function(loadOptions, onError) {
 				/**
 				 * Returns the document body as a text
 				 *  */
@@ -174,7 +178,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			insertText: function(text, insertLocation, onError) {
+			insertTextToBody: function(text, insertLocation, onError) {
 				var officeResultDeferred = $q.defer();
 
 				if (!insertLocation) {
@@ -183,7 +187,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				try {
 					Word.run(function(ctx) {
-						
+
 						// Create a proxy object for the document body.
 						var body = ctx.document.body;
 						ctx.load(body, 'text');
@@ -198,7 +202,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			insertOoxml: function(ooxmlText, insertLocation, onError) {
+			insertOoxmlToBody: function(ooxmlText, insertLocation, onError) {
 				var officeResultDeferred = $q.defer();
 
 				if (!insertLocation) {
@@ -221,7 +225,40 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			select: function(selectionMode, onError) {
+			insertBindingToBody: function(text, id, insertLocation, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					Office.context.document.setSelectedDataAsync(text, { coercionType: Office.BindingType.Text }, setSelectedDataCallback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				// 1 insert text
+				function setSelectedDataCallback(asyncResult) {
+					try {
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							Office.context.document.bindings.addFromSelectionAsync(Office.BindingType.Text, { id: id }, addBindingCallback)
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+					} catch (e) {
+						resolveError(e, onError, officeResultDeferred);
+					}
+				}
+
+				// 2 add binding
+				function addBindingCallback(asyncResult) {
+					if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+						officeResultDeferred.resolve(asyncResult.value.id);
+					} else {
+						resolveError(asyncResult.error, onError, officeResultDeferred);
+					}
+				}
+
+				return officeResultDeferred.promise;
+			},
+			selectBody: function(selectionMode, onError) {
 				var officeResultDeferred = $q.defer();
 
 				try {
@@ -239,7 +276,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			search: function(searchText, searchOptions, onError) {
+			searchBody: function(searchText, searchOptions, onError) {
 				var officeResultDeferred = $q.defer();
 
 				try {
@@ -247,6 +284,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 						// Create a proxy object for the document body.
 						var body = ctx.document.body;
 						var searchResults = body.search(searchText, searchOptions);
+						// TODO what else to include in the search ?
 						ctx.load(searchResults, 'text, id, title, font/size');
 						return ctx.sync().then(function() {
 							console.log(searchResults)
@@ -264,8 +302,12 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				try {
 					Office.context.document.bindings.getByIdAsync(id, callback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
 
-					function callback(asyncResult) {
+				function callback(asyncResult) {
+					try {
 						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
 							var result = asyncResult.value;
 							if (result) {
@@ -276,20 +318,19 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 						} else {
 							resolveError(asyncResult.error, onError, officeResultDeferred);
 						}
-
-						// get binding async
-						function getDataAsync(data) {
-							var binding = {
-								id: id,
-								text: data.value,
-								type: data.asyncContext.type
-							}
-							officeResultDeferred.resolve(binding);
-						}
+					} catch (e) {
+						resolveError(e, onError, officeResultDeferred);
 					}
 
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
+					// get binding async
+					function getDataAsync(data) {
+						var binding = {
+							id: id,
+							text: data.value,
+							type: data.asyncContext.type
+						}
+						officeResultDeferred.resolve(binding);
+					}
 				}
 
 				return officeResultDeferred.promise;
@@ -300,8 +341,12 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				try {
 					//Go to binding by id.
 					Office.context.document.bindings.getAllAsync(callback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
 
-					function callback(asyncResult) {
+				function callback(asyncResult) {
+					try {
 						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
 							var result = asyncResult.value;
 							console.log(result);
@@ -317,29 +362,28 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 						} else {
 							resolveError(asyncResult.error, onError, officeResultDeferred);
 						}
-
-						// get each data async
-						function getDataAsync(data) {
-							if (data.status === Office.AsyncResultStatus.Succeeded) {
-								console.log(data)
-								var item = {
-									id: data.asyncContext.id,
-									text: data.value,
-									type: data.asyncContext.type
-								}
-								bindings.push(item)
-							} else {
-								count--;
-							}
-							// resolve result when all bindings are retrieved
-							if (bindings.length === count) {
-								officeResultDeferred.resolve(bindings);
-							}
-						}
+					} catch (e) {
+						resolveError(e, onError, officeResultDeferred)
 					}
 
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
+					// get each data async
+					function getDataAsync(data) {
+						if (data.status === Office.AsyncResultStatus.Succeeded) {
+							console.log(data)
+							var item = {
+								id: data.asyncContext.id,
+								text: data.value,
+								type: data.asyncContext.type
+							}
+							bindings.push(item)
+						} else {
+							count--;
+						}
+						// resolve result when all bindings are retrieved
+						if (bindings.length === count) {
+							officeResultDeferred.resolve(bindings);
+						}
+					}
 				}
 
 				return officeResultDeferred.promise;
@@ -394,7 +438,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			gotoBinding: function(id, selectBinding, onError) {
+			goToBinding: function(id, selectBinding, onError) {
 				var officeResultDeferred = $q.defer();
 
 				try {
@@ -426,43 +470,71 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				var officeResultDeferred = $q.defer();
 
 				try {
-					// 1 Select the binding by id.
-					Office.context.document.goToByIdAsync(id, Office.GoToType.Binding, { selectionMode: Office.SelectionMode.Selected }, callback);
-
-					// FIXME callback is not executed, i can't confirm if selection is done.
-					function callback(asyncResult) {
-						console.log(asyncResult)
-					}
-
-					// 2 release binding
-					Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
-
+					Office.select("bindings#" + id, onError).setDataAsync(text, { coercionType: "text" }, setDataCallback);
 				} catch (e) {
-					$log.error('office365Word: error setting selected data: ' + e.message);
-					$window.executeInlineScript(onError.formname, onError.script, [e.message]);
+					resolveError(e, onError, officeResultDeferred);
 				}
 
-				// 2 release the binding callback
-				function releaseByIdCallback(asyncResult) {
-					console.log(asyncResult);
+				function setDataCallback(asyncResult) {
 					if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-						// 3 replace the text of the binding
-						Office.context.document.setSelectedDataAsync(text, { coercionType: Office.CoercionType.Text }, setSelectedDataCallback);
+						officeResultDeferred.resolve(true);
 					} else {
 						resolveError(asyncResult.error, onError, officeResultDeferred);
 					}
 				}
 
-				// 3 replace the text of the binding callback
-				function setSelectedDataCallback(result) {
-					if (result.status === Office.AsyncResultStatus.Succeeded) {
-						officeResultDeferred.resolve(true);
-					} else {
-						resolveError(result.error, onError, officeResultDeferred);
-					}
-				}
-
 				return officeResultDeferred.promise;
+
+				/*
+				 try {
+				 // 1 Select the binding by id.
+				 Office.context.document.goToByIdAsync(id, Office.GoToType.Binding, { selectionMode: Office.SelectionMode.Selected }, callback);
+
+				 // FIXME callback is not executed, i can't confirm if selection is done.
+				 function callback(asyncResult) {
+				 console.log(asyncResult)
+				 }
+
+				 // 2 release binding
+				 //Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
+
+				 } catch (e) {
+				 $log.error('office365Word: error setting selected data: ' + e.message);
+				 $window.executeInlineScript(onError.formname, onError.script, [e.message]);
+				 }
+
+				 // 2 release the binding callback
+				 function releaseByIdCallback(asyncResult) {
+				 console.log(asyncResult);
+				 if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+				 // 3 replace the text of the binding
+				 Office.context.document.setSelectedDataAsync(text, { coercionType: Office.CoercionType.Text }, setSelectedDataCallback);
+				 } else {
+				 resolveError(asyncResult.error, onError, officeResultDeferred);
+				 }
+				 }
+
+				 // 3 replace the text of the binding callback
+				 function setSelectedDataCallback(result) {
+				 if (result.status === Office.AsyncResultStatus.Succeeded) {
+				 officeResultDeferred.resolve(true);
+				 } else {
+				 resolveError(result.error, onError, officeResultDeferred);
+				 }
+				 }
+				 return officeResultDeferred.promise;
+				 */
 			}
 		}
-	}]).run(function($rootScope, $services) { })
+	}]).run(function($rootScope, $services) {
+
+	requirejs.config({
+		//By default load any module IDs from js/lib
+		baseUrl: '/'
+	});
+
+	requirejs(["office365/lib/office.debug.js", "office365/lib/MicrosoftAjax.debug.js"], function(util) {
+			console.log("officejs loaded");
+		});
+
+});

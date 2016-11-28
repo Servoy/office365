@@ -3,7 +3,8 @@
 	"displayName": "word",
 	"version": 1,
  	"definition": "office365/word/word.js",
-	"libraries": [],
+	"libraries": [
+	],
 	"model":
 	{
  	},
@@ -12,34 +13,6 @@
  	 	"isOfficeEnabled": {
 	    	"parameters": [],
 			"returns" : "boolean"
-		},
- 		"getText": {
-	    	"parameters": [{
-					"name": "loadOptions",
-					"type": "object",
-					"optional" : true
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
-		},
-		 "getHtml": {
-	    	"parameters": [{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
-		},
-		 "getOoxml": {
-	    	"parameters": [{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
 		},
 		"getDownloadUrl": {
 	    	"parameters": [{
@@ -80,7 +53,35 @@
 				}],
 			"returns" : "boolean"
 		},
-		"insertText": {
+			"getBodyText": {
+	    	"parameters": [{
+					"name": "loadOptions",
+					"type": "object",
+					"optional" : true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "string"
+		},
+		 "getBodyHtml": {
+	    	"parameters": [{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "string"
+		},
+		 "getBodyOoxml": {
+	    	"parameters": [{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "string"
+		},
+		"insertTextToBody": {
 	    	"parameters": [{
 					"name": "text",
 					"type": "string"
@@ -95,7 +96,7 @@
 				}],
 			"returns" : "boolean"
 		},
-		"insertOoxml": {
+		"insertOoxmlToBody": {
 	    	"parameters": [{
 					"name": "ooxmlText",
 					"type": "string"
@@ -110,7 +111,25 @@
 				}],
 			"returns" : "boolean"
 		},
-		"select": {
+		"insertBindingToBody" : {
+			"parameters": [{
+					"name": "text",
+					"type": "string"
+				},{
+					"name": "id",
+					"type": "string"
+				},{
+					"name": "insertLocation",
+					"type": "string",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "text"
+		},
+		"selectBody": {
 	    	"parameters": [{
 					"name": "selectionMode",
 					"type": "string",
@@ -122,7 +141,7 @@
 				}],
 			"returns" : "boolean"
 		},
-		"search": {
+		"searchBody": {
 	    	"parameters": [{
 					"name": "searchText",
 					"type": "string"
@@ -190,7 +209,7 @@
 				}],
 			"returns" : "string"
 		},
-		"gotoBinding" : {
+		"goToBinding" : {
 			    "parameters": [{
 					"name": "id",
 					"type": "string"
