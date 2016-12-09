@@ -288,7 +288,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			insertBindingToBody: function(text, id, insertLocation, onError) {
+			insertBindingToBody: function(text, id, onError) {
 				var officeResultDeferred = $q.defer();
 
 				try {
@@ -314,6 +314,26 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				function addBindingCallback(asyncResult) {
 					if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
 						officeResultDeferred.resolve(asyncResult.value.id);
+					} else {
+						resolveError(asyncResult.error, onError, officeResultDeferred);
+					}
+				}
+
+				return officeResultDeferred.promise;
+			},
+			insertBindingToContentControl: function(title, id, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
+					Office.context.document.bindings.addFromNamedItemAsync(title, Office.CoercionType.Text, { "id": id }, setDataCallback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
+
+				function setDataCallback(asyncResult) {
+					if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+						officeResultDeferred.resolve(true);
 					} else {
 						resolveError(asyncResult.error, onError, officeResultDeferred);
 					}
@@ -367,9 +387,15 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					var body = ctx.document.body;
 					var searchResults = body.search(searchText, searchOptions);
 					// TODO what else to include in the search ?
+					if (scope.model.searchResults) {
+						ctx.trackedObjects.remove(scope.model.searchResults);
+					}
 					ctx.load(searchResults, 'text, id, title, font/size');
 					return ctx.sync().then(function() {
-						$log.debug(searchResults)
+						// store the searchResults in cache
+						$log.debug(searchResults);
+						ctx.trackedObjects.add(searchResults);
+						scope.model.searchResults = searchResults.items;
 						officeResultDeferred.resolve(searchResults.items);
 					});
 				}).catch(function(e) {
@@ -496,6 +522,28 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
+			releaseBinding: function(id, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+
+					Office.context.document.bindings.releaseByIdAsync(id, callback);
+
+					function callback(asyncResult) {
+						$log.debug(asyncResult)
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							officeResultDeferred.resolve(true);
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+					}
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
 			addBindingFromSelection: function(bindingType, id, onError) {
 				var officeResultDeferred = $q.defer();
 
@@ -605,9 +653,38 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				 }
 				 return officeResultDeferred.promise;
 				 */
+			},
+			getSearchResults: function() {
+				return scope.model.searchResults;
+			},
+			selectSearchResult: function(index, selectionMode, onError) {
+
+				// search result not available
+				if (!scope.model.searchResults || !scope.model.searchResults[index]) {
+					return false;
+				}
+
+				var searchResult = scope.model.searchResults[index];
+
+				var officeResultDeferred = $q.defer();
+
+				Word.run(function(ctx) {
+					searchResult.contentControls.select(selectionMode);
+					return ctx.sync().then(function() {
+						// store the searchResults in cache
+						officeResultDeferred.resolve(true);
+					});
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred)
+				})
+
+				return officeResultDeferred.promise;
+
 			}
 		}
 	}]).run(function($rootScope, $services) {
+
+	____logProvider.debugEnabled(true);
 
 	//	requirejs.config({
 	//		//By default load any module IDs from js/lib

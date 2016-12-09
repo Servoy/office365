@@ -7,6 +7,7 @@
 	],
 	"model":
 	{
+		"searchResult" : {"type": "object", "pushToServer": "allow", "tags": {"scope": "private"}}
  	},
  	"api":
  	{
@@ -134,15 +135,25 @@
 					"name": "id",
 					"type": "string"
 				},{
-					"name": "insertLocation",
-					"type": "string",
-					"optional": true
-				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
 				}],
 			"returns" : "string"
+		},
+		"insertBindingToContentControl": {
+				"parameters": [{
+					"name": "title",
+					"type": "string"
+				},{
+					"name": "id",
+					"type": "string"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
 		},
 		"insertContentControl" : {
 					"parameters": [{
@@ -254,6 +265,17 @@
 				}],
 			"returns" : "boolean"
 		},
+		"releaseBinding" : {
+			    "parameters": [{
+					"name": "id",
+					"type": "string"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
 		"setBindingData": {
 	    	"parameters": [{
 					"name": "id",
@@ -281,6 +303,24 @@
 					"optional" : true
 				}],
 			"returns" : "boolean"
+		},
+		"getSearchResults": {
+			"returns" : "ContentControl[]"
+		},
+		"selectSearchResult" : {
+			"parameters": [{
+					"name": "index",
+					"type": "int"
+				},{
+					"name": "selectionMode",
+					"type": "string",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
 		}
  	},
  	"types" : {
@@ -288,6 +328,11 @@
  			"id":"string",
  			"text": "string",
  			"type": "string"
+ 		},
+ 		"ContentControl" : {
+ 			"text": "string",
+ 			"font": "object",
+ 			"color": "object"
  		}
  	}
 }
