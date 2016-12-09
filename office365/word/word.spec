@@ -170,6 +170,57 @@
 				}],
 			"returns" : "string"
 		},
+		"getAllContentControls" : {
+			    "parameters": [{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "object[]"
+		},
+		"goToContentControl" : {
+			    "parameters": [{
+					"name": "title",
+					"type": "string"
+				},{
+					"name": "selectionMode",
+					"type": "string",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
+		"setContentControlText": {
+			"parameters": [{
+					"name": "title",
+					"type": "string"
+				},{
+					"name": "text",
+					"type": "string"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
+		"deleteContentControl": {
+			"parameters": [{
+					"name": "title",
+					"type": "string"
+				},{
+					"name": "keepContent",
+					"type": "boolean"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
 		"selectBody": {
 	    	"parameters": [{
 					"name": "selectionMode",

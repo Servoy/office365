@@ -28,6 +28,10 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 		}
 
 		/**
+		 * @param error
+		 * @param onError
+		 * @param officeResultDeferred
+		 * 
 		 * resolve promis with error
 		 *  */
 		function resolveError(error, onError, officeResultDeferred) {
@@ -36,6 +40,26 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				$window.executeInlineScript(onError.formname, onError.script, [error.message]);
 			}
 			officeResultDeferred.resolve(null);
+		}
+		
+		/**
+		 * @param {String} title
+		 * @param {Function} syncCallback
+		 * @param {Function} onError
+		 * @param officeResultDeferred
+		 *  */
+		function getContentControlByTitle(title, syncCallback, onError, officeResultDeferred) {
+			// Run a batch operation against the Word object model.
+			Word.run(function(context) {
+
+				var contentControls = context.document.contentControls.getByTitle(title);
+				context.load(contentControls, 'text, title, tag');
+				return context.sync().then(function (asyncResult) {
+					syncCallback.call(this, contentControls);
+				});
+			}).catch(function(error) {
+				resolveError(error, onError, officeResultDeferred);
+			});
 		}
 
 		return {
@@ -404,6 +428,75 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
+			goToContentControl: function(title, selectionMode, onError) {
+				var officeResultDeferred = $q.defer();
+				
+				getContentControlByTitle(title,syncCallback,onError,officeResultDeferred)
+
+				function syncCallback(contentControls) {
+					if (contentControls.items.length === 0) {
+						officeResultDeferred.resolve(false);
+					} else {
+						var nextItem = contentControls.items[0].select(selectionMode);
+						officeResultDeferred.resolve(true);
+					}
+				}
+
+				return officeResultDeferred.promise;
+
+			},
+			getAllContentControls: function(onError) {
+				var officeResultDeferred = $q.defer();
+				
+				// Run a batch operation against the Word object model.
+				Word.run(function(context) {
+
+					var contentControls = context.document.contentControls;
+					context.load(contentControls, 'text, title, tag');
+					return context.sync().then(function() {
+						officeResultDeferred.resolve(contentControls.items);
+					});
+				}).catch(function(error) {
+					resolveError(error, onError, officeResultDeferred);
+				});
+
+				return officeResultDeferred.promise;
+			},
+			setContentControlText: function(title, text, onError) {
+				var officeResultDeferred = $q.defer();
+
+				getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
+
+				// go to all of them
+				function syncCallback(contentControls) {
+					if (contentControls.items.length === 0) {
+						officeResultDeferred.resolve(false);
+					} else {
+						for (var i = 0; i < contentControls.items.length; i++) {
+							contentControls.items[i].insertText(text, "replace");
+						}
+						officeResultDeferred.resolve(true);
+					}
+				}
+				
+				return officeResultDeferred.promise;
+			},
+			deleteContentControl: function(title, keepContent, onError) {
+				var officeResultDeferred = $q.defer();
+
+				getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
+
+				function syncCallback(contentControls) {
+					if (contentControls.items.length === 0) {
+						officeResultDeferred.resolve(false);
+					} else {
+						contentControls.items[0].delete(keepContent);
+						officeResultDeferred.resolve(true);
+					}
+				}
+
+				return officeResultDeferred.promise;
+			},
 			getBinding: function(id, onError) {
 				var officeResultDeferred = $q.defer();
 
@@ -684,7 +777,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 		}
 	}]).run(function($rootScope, $services) {
 
-	____logProvider.debugEnabled(true);
+	//____logProvider.debugEnabled(true);
 
 	//	requirejs.config({
 	//		//By default load any module IDs from js/lib
