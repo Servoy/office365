@@ -35,7 +35,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 		 * resolve promis with error
 		 *  */
 		function resolveError(error, onError, officeResultDeferred) {
-			var msg = typeof(error) === "string" ? error : error.message;
+			var msg = typeof (error) === "string" ? error : error.message;
 			$log.error('office365Word: ', msg);
 			if (onError) {
 				$window.executeInlineScript(onError.formname, onError.script, [msg]);
@@ -313,7 +313,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			
+
 			selectBody: function(selectionMode, onError) {
 				var officeResultDeferred = $q.defer();
 
@@ -390,6 +390,19 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				return officeResultDeferred.promise;
 			},
 			setContentControlText: function(title, text, onError) {
+				/***
+				 * Find all content control having title
+				 * Replace the text for each item found
+				 * Using binding to replace text is prefered to plain insertText since using binding is possible to mantain the design text style. 
+				 * insertText will reset the text style to normal instead.
+				 * Since there may be several item with the same namesSpace (title), 
+				 * - select the item 
+				 * - add binding from selection
+				 * - set binding data
+				 * - release time
+				 * 
+				 * */
+				
 				var officeResultDeferred = $q.defer();
 
 				getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
@@ -412,49 +425,78 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				//					}
 				//				}
 
+				// 0 search all content control by title
 				function syncCallback(contentControls, context) {
 					if (contentControls.items.length === 0) {
 						officeResultDeferred.resolve(false);
 					} else {
-						//						for (var i = 0; i < contentControls.items.length; i++) {
-						//							contentControls.items[i].insertText(text, "replace");
-						//						}
-						var item = contentControls.items[0];
-						var id = item.id;
-						if (typeof(id) === "number") {
-							id = id + "";
+						for (var i = 0; i < contentControls.items.length; i++) {
+							contentControls.items[i].insertText(text, "replace");
+							var item = contentControls.items[i];
+							processItem(item, context)
 						}
-						Office.context.document.bindings.addFromNamedItemAsync(item.title, Office.CoercionType.Text, { "id": id }, setBindingCallback);
-						
-						// 1 set binding to named space
-						function setBindingCallback(asyncResult) {
-							if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-								Office.select("bindings#" + id, resolveError).setDataAsync(text, setBindingDataCallback);
-							} else {
-								resolveError(asyncResult.error, onError, officeResultDeferred);
-							}
-						}
-						
-						// 2 replace the text of the binding callback
-						function setBindingDataCallback(result) {
-							if (result.status === Office.AsyncResultStatus.Succeeded) {
-								Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
-							} else {
-								resolveError(result.error, onError, officeResultDeferred);
-							}
-						}
+					}
+				}
 
-						// 3 release the binding callback
-						function releaseByIdCallback(asyncResult) {
-							$log.debug(asyncResult);
-							if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-								// 3 replace the text of the binding
-								officeResultDeferred.resolve(true);
-							} else {
-								resolveError(asyncResult.error, onError, officeResultDeferred);
-							}
+				// 1 select item
+				function processItem(item, context) {
+					var id = item.id;
+					if (typeof (id) === "number") {
+						id = id + "";
+					}
+					
+					/* Use promise to make sure that value are processed sequentially */
+					return new Promise(function(resolve, reject) {
+						item.select('select');
+						context.sync().then(function() {
+							addBindingFromSelection(id);
+							resolve();	// wait until the sync is resolved
+						});
+					}).then(function() {
+					}).catch(function(error) {
+						resolveError(error, onError, officeResultDeferred)
+					});
+				}
+
+				// 2 add binding
+				function addBindingFromNameSpace(id) {
+					Office.context.document.bindings.addFromNamedItemAsync(title, Office.CoercionType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
+				}
+
+				function addBindingFromSelection(id) {
+					Office.context.document.bindings.addFromSelectionAsync(Office.CoercionType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
+				}
+
+				// 3 replace text
+				function replaceBindingsText(asyncRes) {
+
+					var id = asyncRes.asyncContext;
+
+					// 1 set binding to named space
+					if (asyncRes.status === Office.AsyncResultStatus.Succeeded) {
+						Office.select("bindings#" + id, resolveError).setDataAsync(text, setBindingDataCallback);
+					} else {
+						resolveError(asyncRes.error, onError, officeResultDeferred);
+					}
+
+					// 4 replace the text of the binding callback
+					function setBindingDataCallback(result) {
+						if (result.status === Office.AsyncResultStatus.Succeeded) {
+							Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
+						} else {
+							resolveError(result.error, onError, officeResultDeferred);
 						}
-						
+					}
+
+					// 5 release the binding callback
+					function releaseByIdCallback(asyncResult) {
+						$log.debug(asyncResult);
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							// 3 replace the text of the binding
+							officeResultDeferred.resolve(true);
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
 					}
 				}
 
