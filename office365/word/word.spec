@@ -127,20 +127,6 @@
 				}],
 			"returns" : "boolean"
 		},
-		"insertBindingToBody" : {
-			"parameters": [{
-					"name": "text",
-					"type": "string"
-				},{
-					"name": "id",
-					"type": "string"
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
-		},
 		"insertContentControl" : {
 					"parameters": [{
 					"name": "tag",
@@ -233,80 +219,6 @@
 					"optional" : true
 				}],
 			"returns" : "object"
-		},
-		"getAllBindings" : {
-			    "parameters": [{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "Binding[]"
-		},
-		"getBinding" : {
-			    "parameters": [{
-					"name": "id",
-					"type": "string"
-					},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "Binding"
-		},
-		"addBindingFromSelection" : {
-			    "parameters": [{
-					"name": "bindingType",
-					"type": "string"
-				},{
-					"name": "id",
-					"type": "string",
-					"optional": true
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
-		},
-		"goToBinding" : {
-			    "parameters": [{
-					"name": "id",
-					"type": "string"
-				},{
-					"name": "selectBinding",
-					"type": "boolean",
-					"optional": true
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "boolean"
-		},
-		"releaseBinding" : {
-			    "parameters": [{
-					"name": "id",
-					"type": "string"
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "boolean"
-		},
-		"setBindingData": {
-	    	"parameters": [{
-					"name": "id",
-					"type": "string"
-				},{
-					"name": "text",
-					"type": "string"
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "boolean"
 		},
 		"getSearchResults": {
 			"returns" : "ContentControl[]"
