@@ -31,17 +31,18 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 		 * @param error
 		 * @param onError
 		 * @param officeResultDeferred
-		 * 
+		 *
 		 * resolve promis with error
 		 *  */
 		function resolveError(error, onError, officeResultDeferred) {
-			$log.error('office365Word: ', error.message);
+			var msg = typeof(error) === "string" ? error : error.message;
+			$log.error('office365Word: ', msg);
 			if (onError) {
-				$window.executeInlineScript(onError.formname, onError.script, [error.message]);
+				$window.executeInlineScript(onError.formname, onError.script, [msg]);
 			}
 			officeResultDeferred.resolve(null);
 		}
-		
+
 		/**
 		 * @param {String} title
 		 * @param {Function} syncCallback
@@ -54,8 +55,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				var contentControls = context.document.contentControls.getByTitle(title);
 				context.load(contentControls, 'text, title, tag');
-				return context.sync().then(function (asyncResult) {
-					syncCallback.call(this, contentControls);
+				return context.sync().then(function(asyncResult) {
+					syncCallback.call(this, contentControls, context);
 				});
 			}).catch(function(error) {
 				resolveError(error, onError, officeResultDeferred);
@@ -430,8 +431,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			},
 			goToContentControl: function(title, selectionMode, onError) {
 				var officeResultDeferred = $q.defer();
-				
-				getContentControlByTitle(title,syncCallback,onError,officeResultDeferred)
+
+				getContentControlByTitle(title, syncCallback, onError, officeResultDeferred)
 
 				function syncCallback(contentControls) {
 					if (contentControls.items.length === 0) {
@@ -447,7 +448,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			},
 			getAllContentControls: function(onError) {
 				var officeResultDeferred = $q.defer();
-				
+
 				// Run a batch operation against the Word object model.
 				Word.run(function(context) {
 
@@ -467,18 +468,70 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
 
-				// go to all of them
-				function syncCallback(contentControls) {
+				//				// go to all of them
+				//				function syncCallback(contentControls, context) {
+				//					if (contentControls.items.length === 0) {
+				//						officeResultDeferred.resolve(false);
+				//					} else {
+				//						for (var i = 0; i < contentControls.items.length; i++) {
+				//							contentControls.items[i].insertText(text, "replace");
+				//						}
+				//						officeResultDeferred.resolve(true);
+				//
+				//						context.sync().then(function() {
+				//							officeResultDeferred.resolve(true);
+				//						}).catch(function(e) {
+				//							resolveError(e, onError, officeResultDeferred)
+				//						})
+				//					}
+				//				}
+
+				function syncCallback(contentControls, context) {
 					if (contentControls.items.length === 0) {
 						officeResultDeferred.resolve(false);
 					} else {
-						for (var i = 0; i < contentControls.items.length; i++) {
-							contentControls.items[i].insertText(text, "replace");
+						//						for (var i = 0; i < contentControls.items.length; i++) {
+						//							contentControls.items[i].insertText(text, "replace");
+						//						}
+						var item = contentControls.items[0];
+						var id = item.id;
+						if (typeof(id) === "number") {
+							id = id + "";
 						}
-						officeResultDeferred.resolve(true);
+						Office.context.document.bindings.addFromNamedItemAsync(item.title, Office.CoercionType.Text, { "id": id }, setBindingCallback);
+						
+						// 1 set binding to named space
+						function setBindingCallback(asyncResult) {
+							if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+								Office.select("bindings#" + id, resolveError).setDataAsync(text, setBindingDataCallback);
+							} else {
+								resolveError(asyncResult.error, onError, officeResultDeferred);
+							}
+						}
+						
+						// 2 replace the text of the binding callback
+						function setBindingDataCallback(result) {
+							if (result.status === Office.AsyncResultStatus.Succeeded) {
+								Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
+							} else {
+								resolveError(result.error, onError, officeResultDeferred);
+							}
+						}
+
+						// 3 release the binding callback
+						function releaseByIdCallback(asyncResult) {
+							$log.debug(asyncResult);
+							if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+								// 3 replace the text of the binding
+								officeResultDeferred.resolve(true);
+							} else {
+								resolveError(asyncResult.error, onError, officeResultDeferred);
+							}
+						}
+						
 					}
 				}
-				
+
 				return officeResultDeferred.promise;
 			},
 			deleteContentControl: function(title, keepContent, onError) {
