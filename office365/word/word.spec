@@ -141,20 +141,6 @@
 				}],
 			"returns" : "string"
 		},
-		"insertBindingToContentControl": {
-				"parameters": [{
-					"name": "title",
-					"type": "string"
-				},{
-					"name": "id",
-					"type": "string"
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "boolean"
-		},
 		"insertContentControl" : {
 					"parameters": [{
 					"name": "tag",
@@ -282,25 +268,6 @@
 				}],
 			"returns" : "string"
 		},
-		"addBindingFromPrompt" : {
-			    "parameters": [{
-					"name": "bindingType",
-					"type": "string"
-				},{
-					"name": "id",
-					"type": "string",
-					"optional": true
-				},{
-					"name": "prompText",
-					"type": "string",
-					"optional": true
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "string"
-		},
 		"goToBinding" : {
 			    "parameters": [{
 					"name": "id",
@@ -330,20 +297,6 @@
 		"setBindingData": {
 	    	"parameters": [{
 					"name": "id",
-					"type": "string"
-				},{
-					"name": "text",
-					"type": "string"
-				},{
-					"name": "onError",
-					"type": "function",
-					"optional" : true
-				}],
-			"returns" : "boolean"
-		},
-		"setTagText": {
-			"parameters": [{
-					"name": "tag",
 					"type": "string"
 				},{
 					"name": "text",

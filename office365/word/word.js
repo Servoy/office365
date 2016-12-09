@@ -346,48 +346,6 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			insertBindingToContentControl: function(title, id, onError) {
-
-				var officeResultDeferred = $q.defer();
-
-				try {
-					Office.context.document.bindings.addFromNamedItemAsync(title, Office.CoercionType.Text, { "id": id }, setDataCallback);
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred);
-				}
-
-				function setDataCallback(asyncResult) {
-					if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-						officeResultDeferred.resolve(true);
-					} else {
-						resolveError(asyncResult.error, onError, officeResultDeferred);
-					}
-				}
-
-				return officeResultDeferred.promise;
-			},
-			setTagText: function(tag, text, onError) {
-				var officeResultDeferred = $q.defer();
-
-				Word.run(function(ctx) {
-					var ccs = ctx.document.contentControls.getByTag(tag);
-					ctx.load(ccs, { select: 'text' });
-					return ctx.sync().then(function() {
-						// Replace the text value for each of the content controls that
-						// have a tag called "customer". Highlight the content controls.
-						for (var i = 0; i < ccs.items.length; i++) {
-							ccs.items[i].insertText(text, "replace");
-						}
-					})// Synchronize the document state by executing the queued commands.
-					.then(ctx.sync).then(function() {
-						officeResultDeferred.resolve(true);
-					}).catch(function(e) {
-						resolveError(e, onError, officeResultDeferred)
-					})
-				});
-
-				return officeResultDeferred.promise;
-			},
 			selectBody: function(selectionMode, onError) {
 				var officeResultDeferred = $q.defer();
 
@@ -708,32 +666,6 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 						}
 					}
 
-				} catch (e) {
-					resolveError(e, onError, officeResultDeferred)
-				}
-
-				return officeResultDeferred.promise;
-			},
-			addBindingFromPrompt: function(bindingType, id, promptText, onError) {
-				var officeResultDeferred = $q.defer();
-
-				if (!bindingType) {
-					bindingType = Office.BindingType.Text;
-				}
-
-				try {
-					var options = { }
-					if (id) options.id = id;
-					if (promptText) options.promptText = promptText;
-					Office.context.document.bindings.addFromPromptAsync(bindingType, options, callback);
-
-					function callback(asyncResult) {
-						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-							officeResultDeferred.resolve(asyncResult.value);
-						} else {
-							resolveError(asyncResult.error, onError, officeResultDeferred);
-						}
-					}
 				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
 				}
