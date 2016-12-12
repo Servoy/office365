@@ -270,7 +270,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
-			insertContentControl: function(tag, ops, onError) {
+			insertContentControl: function(ops, onError) {
 
 				var officeResultDeferred = $q.defer();
 
@@ -282,8 +282,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 					// Queue a commmand to create the content control.
 					var contentControl = range.insertContentControl();
-					contentControl.tag = tag;
 					if (ops) {
+						if (ops.tag) contentControl.tag = ops.tag;
 						if (ops.title) contentControl.title = ops.title;
 						if (ops.cannotDelete) contentControl.cannotDelete = ops.cannotDelete;
 						if (ops.cannotEdit) contentControl.cannotEdit = ops.cannotEdit;

@@ -129,12 +129,8 @@
 		},
 		"insertContentControl" : {
 					"parameters": [{
-					"name": "tag",
-					"type": "string"
-				},{
 					"name": "contentControlOptions",
-					"type": "object",
-					"optional": true
+					"type": "ContentControl"
 				},{
 					"name": "onError",
 					"type": "function",
@@ -246,9 +242,16 @@
  			"type": "string"
  		},
  		"ContentControl" : {
+ 		 	"cannotDelete" : "boolean",
+ 		 	"cannotEdit" : "boolean",
+ 		 	"color": "object",
+ 		 	"font": "object",
+ 		 	"placehoderText" : "string",
+ 		 	"removeWhenEdited" : "boolean",
+ 		 	"style" : "string",
+ 		 	"tag" : "string",
  			"text": "string",
- 			"font": "object",
- 			"color": "object"
+ 			"title" : "boolean"
  		}
  	}
 }
