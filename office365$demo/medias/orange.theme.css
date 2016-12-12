@@ -1,0 +1,92 @@
+.md-button.md-default-theme {
+	border-radius: 3px;
+}
+
+.md-button.md-default-theme.md-primary {
+	color: rgb(33, 150, 243);
+}
+
+.md-button.md-default-theme.md-primary.md-raised,.md-button.md-default-theme.md-primary.md-fab {
+	color: rgb(255, 255, 255);
+	background-color: #FF5722;
+}
+
+a.md-button.md-primary.md-raised:not([disabled]):hover, 
+a.md-button.md-primary.md-fab:not([disabled]):hover, 
+.md-button.md-primary.md-raised:not([disabled]):hover, 
+.md-button.md-primary.md-fab:not([disabled]):hover,
+.md-button.md-primary.md-raised:not([disabled]).md-focused {
+	background-color: #E64A19;
+}
+
+.md-button.md-default-theme.md-primary.md-raised:not ([disabled]):hover,
+.md-button.md-default-theme.md-primary.md-raised:not([disabled]):focus,
+.md-button.md-default-theme.md-primary.md-raised:not([disabled]).md-focused,
+.md-button.md-default-theme.md-primary.md-fab:not ([disabled]):hover,
+.md-button.md-default-theme.md-primary.md-fab:not ([disabled]):focus {
+	background-color: #E64A19;
+}
+
+md-input-container:not(.md-input-invalid).md-input-focused .md-input {
+    border-color: #FF5722;
+    border-top-color: #FF5722;
+    border-right-color: #FF5722;
+    border-bottom-color: #FF5722;
+    border-left-color: #FF5722;
+}
+
+md-input-container:not(.md-input-invalid).md-input-focused label {
+    color: #E64A19;
+}
+
+data-bootstrapcomponents-tablesspanel .svy-form {
+	box-shadow: 0 3px 1px -2px rgba(0,0,0,.14),0 2px 2px 0 rgba(0,0,0,.098),0 1px 5px 0 rgba(0,0,0,.084);
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.md-primary.svy-md-swipe {
+	background-color: #FFC107;
+    color: rgba(255,255,255,0.95);
+   	font-weight : bold;
+}
+
+.ui-grid-row:last-child .ui-grid-cell {
+    border-bottom-color: #ffffff;
+    border-bottom-style: solid;
+}
+.ui-grid-row:nth-child(odd) .ui-grid-cell {
+    background-color: #ffffff;
+}
+.ui-grid-row-selected div.ui-grid-cell {
+    background-color: #ffffff !important;
+}
+
+.ui-grid {
+    border: 0px solid #d4d4d4;
+}
+
+.fluid-container > .row {
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+.fixed-button {
+	width: 100%;
+	height: 100%;
+	min-height: 0px;
+	min-width: 0px;
+	overflow: hidden;
+	margin: 0px;
+	line-height: 0px;
+}
+
+:focus {
+	outline:none;
+}
+
+data-bootstrapcomponents-tablesspanel .svy-form.no-boder {
+	box-shadow: none;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

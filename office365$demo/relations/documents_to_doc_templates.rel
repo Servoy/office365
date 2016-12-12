@@ -1,0 +1,10 @@
+allowCreationRelatedRecords:true,
+foreignDataSource:"db:/example_data/doc_templates",
+items:[
+{foreignColumnName:"document_id",primaryDataProviderID:"document_id",typeid:23,uuid:"2941BF01-0F82-4FD3-B1E6-6A88ACDFAB8E"}
+],
+joinType:1,
+name:"documents_to_doc_templates",
+primaryDataSource:"db:/example_data/documents",
+typeid:22,
+uuid:"476415BC-7355-4BDD-919A-421B2CDF9841"

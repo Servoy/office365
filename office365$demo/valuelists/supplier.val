@@ -1,0 +1,10 @@
+dataProviderID1:"supplierid",
+dataProviderID2:"companyname",
+dataProviderID3:"city",
+dataSource:"db:/example_data/suppliers",
+name:"supplier",
+returnDataProviders:1,
+showDataProviders:6,
+typeid:34,
+uuid:"71FCBCFA-022D-4C17-8896-C3706A901AD2",
+valueListType:1
