@@ -177,7 +177,7 @@
 					"type": "function",
 					"optional" : true
 				}],
-			"returns" : "boolean"
+			"returns" : "int"
 		},
 		"deleteContentControl": {
 			"parameters": [{
