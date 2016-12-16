@@ -270,52 +270,7 @@
 					"optional" : true
 				}],
 			"returns" : "boolean"
-		},
-	"getAllBindings": {
-		"parameters": [{
-			"name": "onError",
-			"type": "function",
-			"optional": true
-		}],
-		"returns": "Binding[]"
-	},
-	"getBinding": {
-		"parameters": [{
-			"name": "id",
-			"type": "string"
-		}, {
-			"name": "onError",
-			"type": "function",
-			"optional": true
-		}],
-		"returns": "Binding"
-	},
-	"goToBinding": {
-		"parameters": [{
-			"name": "id",
-			"type": "string"
-		}, {
-			"name": "selectBinding",
-			"type": "boolean",
-			"optional": true
-		}, {
-			"name": "onError",
-			"type": "function",
-			"optional": true
-		}],
-		"returns": "boolean"
-	},
-	"releaseBinding": {
-		"parameters": [{
-			"name": "id",
-			"type": "string"
-		}, {
-			"name": "onError",
-			"type": "function",
-			"optional": true
-		}],
-		"returns": "boolean"
-	}
+		}
  	},
  	"types" : {
  		"Binding" : {
