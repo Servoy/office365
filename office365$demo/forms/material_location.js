@@ -54,14 +54,16 @@ function btnFillTemplate(event) {
 	if (foundset.getSize()) {
 		var record = foundset.getSelectedRecord();
 		//var bindings = plugins.office365Word.getAllBindings();
-		var bindings = plugins.office365Word.getAllContentControls(onError);
+		var bindings = plugins.office365Word.getAllDisplayTags(onError);//plugins.office365Word.getAllContentControls(onError);
 		for (var i = 0; i < bindings.length; i++) {
 			var binding = bindings[i];
-			var value = record[binding.title]
+			var text = binding.text;
+			var value = record[text]
 			if (value) {
+				plugins.office365Word.replaceDisplayTags(text, value,onError)
 				//plugins.office365Word.insertBindingToContentControl(binding.title,binding.title,onError);
 				//plugins.office365Word.setBindingData(binding.title, value, onError)
-				application.output(plugins.office365Word.setContentControlText(binding.title,value,onError))
+				//application.output(plugins.office365Word.setContentControlText(binding.title,value,onError))
 			}
 		}
 	}

@@ -138,6 +138,21 @@
 				}],
 			"returns" : "string"
 		},
+		"insertDisplayTagToBody" : {
+			"parameters": [{
+					"name": "displayTag",
+					"type": "string"
+				},{
+					"name": "insertLocation",
+					"type": "string",
+					"optional": true
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "boolean"
+		},
 		"getAllContentControls" : {
 			    "parameters": [{
 					"name": "onError",
@@ -161,9 +176,31 @@
 				}],
 			"returns" : "boolean"
 		},
+		"getAllDisplayTags" : {
+			    "parameters": [{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "object[]"
+		},
 		"setContentControlText": {
 			"parameters": [{
 					"name": "title",
+					"type": "string"
+				},{
+					"name": "text",
+					"type": "string"
+				},{
+					"name": "onError",
+					"type": "function",
+					"optional" : true
+				}],
+			"returns" : "int"
+		},
+		"replaceDisplayTags" : {
+			"parameters": [{
+					"name": "displayTag",
 					"type": "string"
 				},{
 					"name": "text",
@@ -233,7 +270,52 @@
 					"optional" : true
 				}],
 			"returns" : "boolean"
-		}
+		},
+	"getAllBindings": {
+		"parameters": [{
+			"name": "onError",
+			"type": "function",
+			"optional": true
+		}],
+		"returns": "Binding[]"
+	},
+	"getBinding": {
+		"parameters": [{
+			"name": "id",
+			"type": "string"
+		}, {
+			"name": "onError",
+			"type": "function",
+			"optional": true
+		}],
+		"returns": "Binding"
+	},
+	"goToBinding": {
+		"parameters": [{
+			"name": "id",
+			"type": "string"
+		}, {
+			"name": "selectBinding",
+			"type": "boolean",
+			"optional": true
+		}, {
+			"name": "onError",
+			"type": "function",
+			"optional": true
+		}],
+		"returns": "boolean"
+	},
+	"releaseBinding": {
+		"parameters": [{
+			"name": "id",
+			"type": "string"
+		}, {
+			"name": "onError",
+			"type": "function",
+			"optional": true
+		}],
+		"returns": "boolean"
+	}
  	},
  	"types" : {
  		"Binding" : {
@@ -242,7 +324,7 @@
  			"type": "string"
  		},
  		"ContentControl" : {
- 		 	"cannotDelete" : "boolean",
+ 		 	"cannotDelete" : {"type": "boolean" },
  		 	"cannotEdit" : "boolean",
  		 	"color": "object",
  		 	"font": "object",

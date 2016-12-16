@@ -115,7 +115,7 @@ uuid:"A01A737A-4395-4B37-9D43-E841589C55BE"
 anchors:15,
 dataProviderID:"description",
 displayType:1,
-location:"19,382",
+location:"21,382",
 size:"210,64",
 typeid:4,
 uuid:"C82BB82F-499C-4FE0-B9DD-DA1F6D8FD03A"

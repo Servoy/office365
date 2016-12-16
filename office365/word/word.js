@@ -63,6 +63,10 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			});
 		}
 
+		function getDisplayTagToken(displayTag) {
+			return "%%" + displayTag + "%%";
+		}
+
 		return {
 			isOfficeEnabled: function() {
 				return Office ? true : false;
@@ -270,6 +274,37 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
+			insertDisplayTagToBody: function(displayTag, insertLocation, onError) {
+				var officeResultDeferred = $q.defer();
+
+				if (!insertLocation) {
+					insertLocation = Word.InsertLocation.end;
+				}
+
+				var text = getDisplayTagToken(displayTag)
+
+				Word.run(insertTextCallback).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred);
+				});
+
+				function insertTextCallback(ctx) {
+					
+					var selection = ctx.document.getSelection();
+					console.log(selection)
+					
+					// Create a proxy object for the document body.
+					var body = ctx.document.body;
+					ctx.load(body, 'text');
+					ctx.document.body.insertText(text, insertLocation);
+					return ctx.sync().then(function() {
+							officeResultDeferred.resolve(true);
+						}, function(e) {
+							resolveError(e, onError, officeResultDeferred);
+						});
+				}
+
+				return officeResultDeferred.promise;
+			},
 			insertContentControl: function(ops, onError) {
 
 				var officeResultDeferred = $q.defer();
@@ -445,7 +480,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				// 0 search all content control by title
 				function syncCallback(contentControls, context) {
-					
+
 					// use promise to force Run method to wait until process is complete
 					return new Promise(function(resolveSync, rejectSync) {
 						if (contentControls.items.length === 0) {
@@ -457,7 +492,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 							// iterate over each item of the contentControl
 							function iterate() {
 								var item = contentControls.items[i];
-								if (i < contentControls.items.length) {		// until has item to process
+								if (i < contentControls.items.length) { // until has item to process
 									$log.debug('setContentControlTex start ' + item.id);
 
 									i++;
@@ -467,7 +502,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 										resolveError(error, onError, officeResultDeferred);
 									});
 
-								} else {	// process is complete, sync to push all outstanding changes to document and resolve
+								} else { // process is complete, sync to push all outstanding changes to document and resolve
 									return context.sync().then(function() {
 										resolveSync(i);
 									});
@@ -482,6 +517,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					/* Use promise to make sure that value are processed sequentially */
 					return new Promise(function(resolve, reject) {
 
+						var bindingId = Math.random().toString(36).substring(7);
+
 						// 1 select item
 						item.select('select')
 						return item.context.sync().then(function() {
@@ -491,22 +528,23 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 								itemId = itemId + "";
 							}
 							// add binding
-							addBindingFromSelection(itemId);
+							addBindingFromSelection(bindingId);
 						}).catch(function(e) {
 							resolveError(e, onError, officeResultDeferred)
 						})
 
 						// 2 add binding
 						function addBindingFromNameSpace(id) {
-							Office.context.document.bindings.addFromNamedItemAsync(title, Office.CoercionType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
+							Office.context.document.bindings.addFromNamedItemAsync(title, Office.BindingType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
 						}
 
 						function addBindingFromSelection(id) {
-							Office.context.document.bindings.addFromSelectionAsync(Office.CoercionType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
+							Office.context.document.bindings.addFromSelectionAsync(Office.BindingType.Text, { "id": id, asyncContext: id }, replaceBindingsText);
 						}
 
 						// 3 replace text
 						function replaceBindingsText(asyncRes) {
+							console.log(asyncRes)
 
 							$log.debug('setContentControlTex setSelectedBinding ' + item.id)
 
@@ -514,7 +552,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 							// 3 set binding to the selected text
 							if (asyncRes.status === Office.AsyncResultStatus.Succeeded) {
-								Office.select("bindings#" + id, resolveError).setDataAsync(text, setBindingDataCallback);
+								asyncRes.value.setDataAsync(text, setBindingDataCallback);
+								//Office.select("bindings#" + id, resolveError).setDataAsync(text, setBindingDataCallback);
 							} else {
 								reject(asyncRes.error);
 							}
@@ -524,9 +563,11 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 								$log.debug('setContentControlTex replaced ' + item.id)
 
 								if (result.status === Office.AsyncResultStatus.Succeeded) {
-									Office.context.document.bindings.releaseByIdAsync(id, releaseByIdCallback);
+									// TODO release the binding anyhow
+									Office.context.document.bindings.releaseByIdAsync(bindingId, releaseByIdCallback);
 								} else {
-									reject(result.error);
+									Office.context.document.bindings.releaseByIdAsync(bindingId, { error: result.error }, releaseByIdCallback);
+									// reject(result.error);
 								}
 							}
 
@@ -534,6 +575,10 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 							function releaseByIdCallback(asyncResult) {
 
 								$log.debug('setContentControlTex released ' + item.id);
+
+								if (asyncResult.asyncContext && asyncResult.asyncContext.error) {
+									reject(asyncResult.asyncContext.error);
+								}
 
 								$log.debug(asyncResult);
 								if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
@@ -566,6 +611,158 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 			},
+			getAllDisplayTags: function(onError) {
+				var officeResultDeferred = $q.defer();
+
+				// Run a batch operation against the Word object model.
+				Word.run(function(context) {
+					// search for display tags in body
+					var body = context.document.body;
+					var searchResults = body.search("%%*%%", { matchWildCards: true });
+					context.load(searchResults, 'text');
+					return context.sync().then(function() {
+						var displayTags = searchResults.items.map(function (item){
+							 item.text = item.text.substring(2, item.text.length-2);
+							 return item;
+						});
+						
+						officeResultDeferred.resolve(displayTags);
+					});
+				}).catch(function(error) {
+					resolveError(error, onError, officeResultDeferred);
+				});
+
+				return officeResultDeferred.promise;
+			},
+			replaceDisplayTags: function(displayTag, text, onError) {
+
+				// TODO to be done in paragraph and footer as well.
+
+				var officeResultDeferred = $q.defer();
+
+				Word.run(function(context) {
+					// search for display tags in body
+					var searchText = getDisplayTagToken(displayTag);
+					var body = context.document.body;
+					var searchResults = body.search(searchText, { matchCase: true });
+					context.load(searchResults, 'text');
+					return context.sync().then(function() {
+
+						return syncCallback(searchResults, context).then(function(result) {
+							officeResultDeferred.resolve(result);
+						}).catch(function(error) {
+							resolveError(error, onError, officeResultDeferred);
+						});
+
+					});
+				}).catch(function(e) {
+					resolveError(e, onError, officeResultDeferred)
+				});
+
+				// 0 search all content control by title
+				function syncCallback(contentControls, context) {
+
+					// use promise to force Run method to wait until process is complete
+					return new Promise(function(resolveSync, rejectSync) {
+						if (contentControls.items.length === 0) {
+							resolveSync(0);
+						} else {
+							var i = 0;
+							iterate();
+
+							// iterate over each item of the contentControl
+							function iterate() {
+								var item = contentControls.items[i];
+								if (i < contentControls.items.length) { // until has item to process
+									$log.debug('replaceDisplayTag ' + item.text);
+
+									i++;
+									processItem(item, context).then(function() {
+										iterate();
+									}).catch(function(error) {
+										resolveError(error, onError, officeResultDeferred);
+									});
+
+								} else { // process is complete, sync to push all outstanding changes to document and resolve
+									return context.sync().then(function() {
+										resolveSync(i);
+									});
+								}
+							}
+						}
+					});
+				}
+
+				function processItem(item, context) {
+
+					/* Use promise to make sure that value are processed sequentially */
+					return new Promise(function(resolve, reject) {
+
+						var bindingId = Math.random().toString(36).substring(7);
+
+						// 1 select item
+						item.select('select');
+
+						// sync the selection
+						return item.context.sync().then(function() {
+							$log.debug('replaceDisplayTag selected ' + item.text)
+							// 2 add binding
+							Office.context.document.bindings.addFromSelectionAsync(Office.BindingType.Text, { "id": bindingId }, replaceBindingsText);
+						}).catch(function(e) {
+							resolveError(e, onError, officeResultDeferred)
+						})
+
+						// 3 replace text
+						function replaceBindingsText(asyncRes) {
+
+							$log.debug('replaceDisplayTag addBinding ' + item.text)
+
+							// 3 set binding to the selected text
+							if (asyncRes.status === Office.AsyncResultStatus.Succeeded) {
+								// set the binding in the selected context
+								asyncRes.value.setDataAsync(text, setBindingDataCallback);
+							} else {
+								reject(asyncRes.error);
+							}
+
+							// 4 replace the text of the binding callback
+							function setBindingDataCallback(result) {
+								$log.debug('replaceDisplayTag replaced ' + item.text)
+
+								if (result.status === Office.AsyncResultStatus.Succeeded) {
+									Office.context.document.bindings.releaseByIdAsync(bindingId, releaseByIdCallback);
+								} else {
+									// still the binding has to be released
+									Office.context.document.bindings.releaseByIdAsync(bindingId, { error: result.error }, releaseByIdCallback);
+								}
+							}
+
+							// 5 release the binding callback
+							function releaseByIdCallback(asyncResult) {
+
+								$log.debug('replaceDisplayTag binding released ' + item.text);
+
+								// error if setDataAsync has failed
+								if (asyncResult.asyncContext && asyncResult.asyncContext.error) {
+									reject(asyncResult.asyncContext.error);
+								}
+
+								$log.debug(asyncResult);
+								if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+									// 3 replace the text of the binding
+									resolve(true);
+								} else {
+									reject(asyncResult.error);
+								}
+							}
+						}
+					});
+
+				}
+
+				return officeResultDeferred.promise;
+			},
+
 			getSearchResults: function() {
 				return scope.model.searchResults;
 			},
@@ -592,6 +789,146 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				return officeResultDeferred.promise;
 
+			},
+			getBinding: function(id, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					Office.context.document.bindings.getByIdAsync(id, callback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				function callback(asyncResult) {
+					try {
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							var result = asyncResult.value;
+							if (result) {
+								result.getDataAsync({ asyncContext: { id: result.id, type: result.type } }, getDataAsync)
+							} else {
+								officeResultDeferred.resolve(null);
+							}
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+					} catch (e) {
+						resolveError(e, onError, officeResultDeferred);
+					}
+
+					// get binding async
+					function getDataAsync(data) {
+						var binding = {
+							id: id,
+							text: data.value,
+							type: data.asyncContext.type
+						}
+						officeResultDeferred.resolve(binding);
+					}
+				}
+
+				return officeResultDeferred.promise;
+			},
+			getAllBindings: function(onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					//Go to binding by id.
+					Office.context.document.bindings.getAllAsync(callback);
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				function callback(asyncResult) {
+					try {
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							var result = asyncResult.value;
+							$log.debug(result);
+							var count = result.length;
+							var bindings = []
+							if (count) {
+								for (var i = 0; i < count; i++) {
+									result[i].getDataAsync({ asyncContext: { id: result[i].id, type: result[i].type } }, getDataAsync)
+								}
+							} else {
+								officeResultDeferred.resolve(bindings);
+							}
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+					} catch (e) {
+						resolveError(e, onError, officeResultDeferred)
+					}
+
+					// get each data async
+					function getDataAsync(data) {
+						if (data.status === Office.AsyncResultStatus.Succeeded) {
+							$log.debug(data)
+							var item = {
+								id: data.asyncContext.id,
+								text: data.value,
+								type: data.asyncContext.type
+							}
+							bindings.push(item)
+						} else {
+							count--;
+						}
+						// resolve result when all bindings are retrieved
+						if (bindings.length === count) {
+							officeResultDeferred.resolve(bindings);
+						}
+					}
+				}
+
+				return officeResultDeferred.promise;
+			},
+			goToBinding: function(id, selectBinding, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					var selectionMode = selectBinding ? Office.SelectionMode.Selected : Office.SelectionMode.None
+					//Go to binding by id.
+					Office.context.document.goToByIdAsync(id, Office.GoToType.Binding, { selectionMode: selectionMode }, callback);
+
+					// FIXME callback is not executed, i can't confirm if selection is done.
+					function callback(asyncResult) {
+						$log.debug(asyncResult)
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							officeResultDeferred.resolve(true);
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+
+					}
+					// TODO remove it
+					officeResultDeferred.resolve(true);
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+			releaseBinding: function(id, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+
+					Office.context.document.bindings.releaseByIdAsync(id, callback);
+
+					function callback(asyncResult) {
+						$log.debug(asyncResult)
+						if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+							officeResultDeferred.resolve(true);
+						} else {
+							resolveError(asyncResult.error, onError, officeResultDeferred);
+						}
+					}
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
 			}
 		}
 	}]).run(function($rootScope, $services) {
