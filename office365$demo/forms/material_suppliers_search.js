@@ -24,14 +24,11 @@ function sendMessage(event) {
  */
 function insertText(event) {
 	if (foundset.getSize() > 0) {
-		application.output(foundset.getAddressAsText())
-		var result = plugins.office365Word.setSelectedData(foundset.getAddressAsText(), globals.CTYPE.Text, onError);
-		application.output(result)
+		plugins.office365Word.setSelectedData(foundset.getAddressAsText(), scopes.office365.COERCION_TYPE.TEXT, onError);
 	}
 }
 
 /**
- * TODO generated, please specify type and doc for the params
  * @param e
  *
  * @properties={typeid:24,uuid:"B1FF9FBE-E868-4D23-B3D6-46C1DC9AE2DB"}
@@ -89,9 +86,7 @@ function onDataChangeSupplier(oldValue, newValue, event) {
  * @properties={typeid:24,uuid:"6BEB1E98-176B-44FD-9F7D-2CE43106B7B1"}
  */
 function onGetTextComponent(event) {
-	// TODO Auto-generated method stub
-	var result = plugins.office365Word.getSelectedData(onError);
-	application.output(result)
+	var result = plugins.office365Word.getSelectedData(scopes.office365.COERCION_TYPE.TEXT,onError);
 	if (result) {
 		foundset.description = result;
 		databaseManager.saveData();

@@ -4,12 +4,12 @@
  * @properties={typeid:35,uuid:"D292EFFB-4F0B-4731-B02B-6ED1D84389C6",variableType:-4}
  */
 var COERCION_TYPE = {
-	Html: "html",
-	Image: "image",
-	Matrix: "matrix",
-	Ooxml: "ooxml",
-	Table: "table",
-	Text: "text"
+	HTML: "html",
+	IMAGE: "image",
+	MATRIX: "matrix",
+	OOXML: "ooxml",
+	TABLE: "table",
+	TEXT: "text"
 }
 
 /**
