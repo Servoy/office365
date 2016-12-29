@@ -7,15 +7,15 @@
  * @properties={typeid:24,uuid:"FCA068AB-FBCA-4CCF-B538-9F2C17F5E815"}
  */
 function onOpenFile(event) {
-	//plugins.officeservicesWord.
 	application.showURL(foundset.downlink)
 }
 
 /**
+ * @public 
  * @properties={typeid:24,uuid:"EB568B4A-49AA-4CD7-8546-8B04E8914100"}
  * @AllowToRunInFind
  */
-function addRecord(url, bodyText) {
+function addRecord(url) {
 	
 	var version = 1;
 	var name = url;
@@ -36,12 +36,6 @@ function addRecord(url, bodyText) {
 		databaseManager.saveData();
 	}
 	
-	if (bodyText) {
-		if (!foundset.documents_to_doc_templates.getSize()) {
-			foundset.documents_to_doc_templates.newRecord();
-		}
-		foundset.documents_to_doc_templates.body_ooxml = bodyText;
-	}
 	databaseManager.saveData();
 
 }

@@ -2,55 +2,6 @@ dataSource:"db:/example_data/suppliers",
 encapsulation:60,
 items:[
 {
-anchors:3,
-formIndex:1,
-json:{
-anchors:3,
-iconName:"build",
-location:{
-x:180,
-y:19
-},
-onActionMethodID:"B506A47D-3244-4B86-9495-49590919D9A4",
-size:{
-height:40,
-width:40
-},
-styleClass:"md-icon-button md-accent md-raised",
-transparent:false
-},
-location:"180,19",
-name:"btn_template",
-size:"40,40",
-typeName:"angularmaterial-mdbutton",
-typeid:47,
-uuid:"16B32B24-FBBD-4591-9B53-07E5A5A35125"
-},
-{
-anchors:11,
-json:{
-anchors:11,
-location:{
-x:18,
-y:15
-},
-onActionMethodID:"6A7212B4-779D-473D-A7D6-D986D05654D9",
-size:{
-height:47,
-width:210
-},
-styleClass:"md-raised md-primary",
-text:"Fill Template",
-transparent:false
-},
-location:"18,15",
-name:"btn_save_doc",
-size:"210,47",
-typeName:"angularmaterial-mdbutton",
-typeid:47,
-uuid:"39CC241E-36CC-4943-8661-60CEF756A5F4"
-},
-{
 height:492,
 partType:5,
 typeid:19,
@@ -61,17 +12,17 @@ anchors:15,
 items:[
 {
 containsFormID:"B64DD53B-3E85-43F6-A34A-2719D8FDCCA1",
-location:"20,162",
+location:"20,104",
 relationName:"suppliers_to_documents",
 text:"material_supplier_documents",
 typeid:15,
 uuid:"8E116C6A-64E9-4920-B2D5-B2953904223B"
 }
 ],
-location:"20,132",
+location:"20,74",
 name:"tab_material_supplier_documents",
 printable:false,
-size:"210,352",
+size:"210,410",
 styleClass:"no-boder",
 tabOrientation:-1,
 transparent:true,
@@ -84,7 +35,7 @@ json:{
 anchors:11,
 location:{
 x:18,
-y:72
+y:17
 },
 onActionMethodID:"44FAFDAB-5A53-4E75-B6B9-269DC47E8B5A",
 size:{
@@ -92,10 +43,10 @@ height:47,
 width:210
 },
 styleClass:"md-raised md-primary",
-text:"Save Revision",
+text:"Save Document",
 transparent:false
 },
-location:"18,72",
+location:"18,17",
 name:"btn_save_docc",
 size:"210,47",
 typeName:"angularmaterial-mdbutton",
