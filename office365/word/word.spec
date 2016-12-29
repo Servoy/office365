@@ -33,11 +33,15 @@
 		},
 		"getSelectedData": {
 	    	"parameters": [{
+					"name": "type",
+					"type": "string",
+					"optional" : true
+				},{
 					"name": "onError",
 					"type": "function",
 					"optional" : true
 				}],
-			"returns" : "string"
+			"returns" : "object"
 				
 		},
 		"setSelectedData": {
@@ -46,7 +50,8 @@
 					"type": "object"
 				},{
 					"name": "type",
-					"type": "string"
+					"type": "string",
+					"optional": true
 				},{
 					"name": "onError",
 					"type": "function",

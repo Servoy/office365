@@ -96,11 +96,14 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				}
 				return result;
 			},
-			getSelectedData: function(onError) {
+			getSelectedData: function(type, onError) {
 
 				var officeResultDeferred = $q.defer();
+				
+				if (!type) type = Office.CoercionType.Text;
+				
 				try {
-					Office.context.document.getSelectedDataAsync(Office.CoercionType.Text, getSelectedDataCallback);
+					Office.context.document.getSelectedDataAsync(type, getSelectedDataCallback);
 
 					function getSelectedDataCallback(result) {
 						if (result.status === Office.AsyncResultStatus.Succeeded) {
@@ -118,6 +121,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			setSelectedData: function(text, type, onError) {
 
 				var officeResultDeferred = $q.defer();
+				
+				if (!type) type = Office.CoercionType.Text;
 
 				try {
 					Office.context.document.setSelectedDataAsync(text, { coercionType: type }, setSelectedDataCallback);
