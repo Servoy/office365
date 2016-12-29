@@ -49,6 +49,7 @@ function addBinding(event) {
 	//if (bindingText) {
 	// application.output(plugins.office365Word.insertBindingToBody(bindingText, dataproviderName, null, onError));
 	// application.output(plugins.office365Word.insertContentControl(tag,contentControlOptions,onError))
+	// application.output(plugins.office365Word.insertDisplayTagToBody(dataproviderName,"replace",onError));
 	//} else {
 	/** @type {office365-word.ContentControl} */
 	var options = { 
@@ -57,9 +58,13 @@ function addBinding(event) {
 		cannotDelete: false,
 		cannotEdit: false
 	}
-	application.output(plugins.office365Word.insertDisplayTagToBody(dataproviderName,"replace",onError))
-	//application.output(plugins.office365Word.insertContentControl(options, onError));
-	//}
+	
+	// fit text
+	if (bindingText){
+		options.text = bindingText;
+	}
+	
+	application.output(plugins.office365Word.insertContentControl(options, onError));
 	refreshBindings();
 }
 
@@ -80,7 +85,7 @@ function onGetBindings(event) {
  * @properties={typeid:24,uuid:"08CC6698-081B-4846-87B3-AEF8670459FC"}
  */
 function refreshBindings() {
-	var bindings = plugins.office365Word.getAllDisplayTags(onError)//plugins.office365Word.getAllContentControls(onError);
+	var bindings = plugins.office365Word.getAllContentControls(onError);
 	var displayValue = [];
 	var realValue = [];
 	var binding;

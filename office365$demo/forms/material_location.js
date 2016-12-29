@@ -54,13 +54,15 @@ function btnFillTemplate(event) {
 	if (foundset.getSize()) {
 		var record = foundset.getSelectedRecord();
 		//var bindings = plugins.office365Word.getAllBindings();
-		var bindings = plugins.office365Word.getAllDisplayTags(onError);//plugins.office365Word.getAllContentControls(onError);
+		var bindings = plugins.office365Word.getAllContentControls(onError);
 		for (var i = 0; i < bindings.length; i++) {
 			var binding = bindings[i];
 			var text = binding.text;
-			var value = record[text]
+			var title = binding.title;
+			var value = record[title]
 			if (value) {
-				plugins.office365Word.replaceDisplayTags(text, value,onError)
+				application.output(plugins.office365Word.setContentControlText(title, value, onError))
+				//plugins.office365Word.replaceDisplayTags(text, value,onError)
 				//plugins.office365Word.insertBindingToContentControl(binding.title,binding.title,onError);
 				//plugins.office365Word.setBindingData(binding.title, value, onError)
 				//application.output(plugins.office365Word.setContentControlText(binding.title,value,onError))
@@ -70,7 +72,7 @@ function btnFillTemplate(event) {
 	
 	// replace products
 	if (plugins.office365Word.goToContentControl("products","select",onError)) {
-		var matrix = scopes.office365.getProductsAsArray();
+		var matrix = scopes.office365$demo.getProductsAsArray();
 		plugins.office365Word.setSelectedData(matrix, globals.CTYPE.Matrix, onError);
 	}
 }

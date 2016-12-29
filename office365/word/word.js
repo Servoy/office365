@@ -430,6 +430,83 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			setContentControlText: function(title, text, onError) {
 				/***
 				 * Find all content control having title
+				 * Replace the text for each item found using the insertText feature of the contentControl
+				 *
+				 * */
+
+				var officeResultDeferred = $q.defer();
+				
+				// 0 search all content control by title
+				Word.run(function(context) {
+
+					var contentControls = context.document.contentControls.getByTitle(title);
+					context.load(contentControls, 'id, text, title');
+					
+						return context.sync().then(function () {
+							// wait for all items to be synced
+							return syncContentControls(contentControls, context).then(function(result) {
+								$log.debug('sync resolved ' + result);
+								officeResultDeferred.resolve(result);
+							});
+						});
+				}).catch(function(error) {
+					resolveError(error, onError, officeResultDeferred);
+				});
+				
+				// 1 iterate over all the contentControls with given title
+				function syncContentControls(contentControls, context) {
+
+					// use promise to force Run method to wait until process is complete
+					return new Promise(function(resolveSync, rejectSync) {
+						if (contentControls.items.length === 0) {
+							resolveSync(0);
+						} else {
+							var i = 0;
+							iterate();
+
+							// iterate over each item of the contentControl
+							function iterate() {
+								if (contentControls.items.length && i < contentControls.items.length) { // until has item to process
+									var item = contentControls.items[i];
+									i++;
+									
+									$log.debug('setContentControl ' + item.title);
+									syncContentControl(item, context).then(function() {
+										iterate();
+									}).catch(function(error) {
+										resolveError(error, onError, officeResultDeferred);
+									});
+
+								} else { // process is complete, sync to push all outstanding changes to document and resolve
+									return context.sync().then(function() {
+										resolveSync(i);
+									});
+								}
+							}
+						}
+					});
+				}
+				
+				// 2 insertText on each contentControl
+				function syncContentControl(contentControl, context) {
+					// Use promise to make sure that value are processed sequentially
+					return new Promise(function(resolveSync, rejectSync) {
+						
+						contentControl.insertText(text, 'Replace');
+						context.load(contentControl, 'id, text, title')//, style, cannotDelete, cannotEdit, appearance');
+						
+						return context.sync().then(function() {
+							$log.debug("insertText " + contentControl.title);
+							resolveSync(true);
+						}).catch(function(e) {
+							rejectSync(e);
+						});
+					});
+				}
+				
+				
+				/*
+				 * Find all content control having title
 				 * Replace the text for each item found
 				 * Using binding to replace text is prefered to plain insertText since using binding is possible to mantain the design text style.
 				 * insertText will reset the text style to normal instead.
@@ -439,48 +516,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				 * - set binding data
 				 * - release time
 				 *
-				 * */
-
-				var officeResultDeferred = $q.defer();
-
-				//getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
-				
-				// Run a batch operation against the Word object model.
-				Word.run(function(context) {
-
-					var contentControls = context.document.contentControls.getByTitle(title);
-					context.load(contentControls, 'text, font, title, tag, style, cannotDelete, cannotEdit, appearance');
-					
-					return new Promise(function(resolveSync, rejectSync) {
-						return context.sync().then(function () {
-								if (contentControls.items.length === 0) {
-									officeResultDeferred.resolve(false);
-								} else {
-									// FIXME resolve all items
-									for (var i = 0; i < 1 && i < contentControls.items.length; i++) {
-										var contentControl = contentControls.items[i];
-										
-										contentControls.items[i].insertText(text, "Replace");
-									    console.log(contentControl);
-										context.load(contentControl, 'id, font, text, title, tag, style, cannotDelete, cannotEdit, appearance');
-									}
-			
-									return context.sync().then(function() {
-										console.log(contentControl);
-										resolveSync(true);
-										officeResultDeferred.resolve(true);
-									}).catch(function(e) {
-										rejectSync(e);
-										resolveError(e, onError, officeResultDeferred)
-									})
-								}
-							});
-						});
-				}).catch(function(error) {
-					resolveError(error, onError, officeResultDeferred);
-				});
-				
-				/*
+				 * 
 				// Run a batch operation against the Word object model.
 				Word.run(function(context) {
 
