@@ -290,12 +290,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				function insertTextCallback(ctx) {
 					
 					var selection = ctx.document.getSelection();
-					console.log(selection)
-					
-					// Create a proxy object for the document body.
-					var body = ctx.document.body;
-					ctx.load(body, 'text');
-					ctx.document.body.insertText(text, insertLocation);
+					selection.insertText(text, 'replace');
 					return ctx.sync().then(function() {
 							officeResultDeferred.resolve(true);
 						}, function(e) {
@@ -326,6 +321,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 						if (ops.placeholderText) contentControl.placeholderText = ops.placeholderText;
 						if (ops.color) contentControl.color = ops.color;
 						if (ops.style) contentControl.style = ops.style;
+						if (ops.text) contentControl.insertText(ops.text, 'Replace');
 					}
 
 					// Queue a command to load the id property for the content control you created.
@@ -441,25 +437,43 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 				var officeResultDeferred = $q.defer();
 
 				//getContentControlByTitle(title, syncCallback, onError, officeResultDeferred);
+				
+				// Run a batch operation against the Word object model.
+				Word.run(function(context) {
 
-				//				// go to all of them
-				//				function syncCallback(contentControls, context) {
-				//					if (contentControls.items.length === 0) {
-				//						officeResultDeferred.resolve(false);
-				//					} else {
-				//						for (var i = 0; i < contentControls.items.length; i++) {
-				//							contentControls.items[i].insertText(text, "replace");
-				//						}
-				//						officeResultDeferred.resolve(true);
-				//
-				//						context.sync().then(function() {
-				//							officeResultDeferred.resolve(true);
-				//						}).catch(function(e) {
-				//							resolveError(e, onError, officeResultDeferred)
-				//						})
-				//					}
-				//				}
-
+					var contentControls = context.document.contentControls.getByTitle(title);
+					context.load(contentControls, 'text, font, title, tag, style, cannotDelete, cannotEdit, appearance');
+					
+					return new Promise(function(resolveSync, rejectSync) {
+						return context.sync().then(function () {
+								if (contentControls.items.length === 0) {
+									officeResultDeferred.resolve(false);
+								} else {
+									// FIXME resolve all items
+									for (var i = 0; i < 1 && i < contentControls.items.length; i++) {
+										var contentControl = contentControls.items[i];
+										
+										contentControls.items[i].insertText(text, "Replace");
+									    console.log(contentControl);
+										context.load(contentControl, 'id, font, text, title, tag, style, cannotDelete, cannotEdit, appearance');
+									}
+			
+									return context.sync().then(function() {
+										console.log(contentControl);
+										resolveSync(true);
+										officeResultDeferred.resolve(true);
+									}).catch(function(e) {
+										rejectSync(e);
+										resolveError(e, onError, officeResultDeferred)
+									})
+								}
+							});
+						});
+				}).catch(function(error) {
+					resolveError(error, onError, officeResultDeferred);
+				});
+				
+				/*
 				// Run a batch operation against the Word object model.
 				Word.run(function(context) {
 
@@ -514,7 +528,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				function processItem(item, context) {
 
-					/* Use promise to make sure that value are processed sequentially */
+					// Use promise to make sure that value are processed sequentially
 					return new Promise(function(resolve, reject) {
 
 						var bindingId = Math.random().toString(36).substring(7);
@@ -593,6 +607,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 
 				}
 
+				*/
 				return officeResultDeferred.promise;
 			},
 			deleteContentControl: function(title, keepContent, onError) {
@@ -622,10 +637,8 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					context.load(searchResults, 'text');
 					return context.sync().then(function() {
 						var displayTags = searchResults.items.map(function (item){
-							 item.text = item.text.substring(2, item.text.length-2);
-							 return item;
+							 return {text: item.text.substring(2, item.text.length-2)};
 						});
-						
 						officeResultDeferred.resolve(displayTags);
 					});
 				}).catch(function(error) {
@@ -645,7 +658,7 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					var searchText = getDisplayTagToken(displayTag);
 					var body = context.document.body;
 					var searchResults = body.search(searchText, { matchCase: true });
-					context.load(searchResults, 'text');
+					context.load(searchResults, 'text, font, style');
 					return context.sync().then(function() {
 
 						return syncCallback(searchResults, context).then(function(result) {
