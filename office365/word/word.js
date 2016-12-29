@@ -199,7 +199,9 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					// Create a proxy object for the document body.
 					var body = ctx.document.body;
 					ctx.load(body, loadOptions);
-					officeResultDeferred.resolve(body);
+					return ctx.sync().then(function() {
+						officeResultDeferred.resolve(body.text);
+					});
 				}).catch(function(e) {
 					resolveError(e, onError, officeResultDeferred);
 				});
