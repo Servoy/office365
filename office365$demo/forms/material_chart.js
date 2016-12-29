@@ -18,7 +18,7 @@ function onInsertChartData(event) {
  * @properties={typeid:24,uuid:"0F69D5F1-628F-4A6A-A90C-19406EEC0AD2"}
  */
 function getDataSetAsArray() {
-	var matrix = scopes.office365.getProductsAsArray();
+	var matrix = scopes.office365$demo.getProductsAsArray();
 	plugins.office365Word.setSelectedData(matrix, globals.CTYPE.Matrix, onError);
 }
 /**
