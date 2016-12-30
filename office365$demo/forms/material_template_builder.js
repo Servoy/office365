@@ -121,7 +121,7 @@ function onError(e) {
  */
 function onDataChange(oldValue, newValue, event) {
 	// plugins.office365Word.goToBinding(newValue, true, onError);
-	// plugins.office365Word.goToContentControl(newValue, "select", onError)
+	plugins.office365Word.goToContentControl(newValue, "select", onError)
 	return true
 }
 

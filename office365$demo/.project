@@ -7,6 +7,7 @@
 		<project>angularmaterial</project>
 		<project>office365</project>
 		<project>googlecharts</project>
+		<project>svyOffice365</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

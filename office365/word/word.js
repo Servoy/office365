@@ -662,7 +662,10 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 					if (contentControls.items.length === 0) {
 						officeResultDeferred.resolve(false);
 					} else {
-						contentControls.items[0].delete(keepContent);
+						for (var i = 0; i < contentControls.items[0].length; i++) {
+							contentControls.items[i].delete(keepContent);
+						}
+						// TODO has to be synchronized back to the document ?
 						officeResultDeferred.resolve(true);
 					}
 				}
