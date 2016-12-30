@@ -33,7 +33,7 @@
 		},
 		"getSelectedData": {
 	    	"parameters": [{
-					"name": "type",
+					"name": "coercionType",
 					"type": "string",
 					"optional" : true
 				},{
@@ -49,7 +49,7 @@
 					"name": "text",
 					"type": "object"
 				},{
-					"name": "type",
+					"name": "coercionType",
 					"type": "string",
 					"optional": true
 				},{
