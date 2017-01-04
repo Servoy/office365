@@ -4,7 +4,8 @@ Office Javascript API for Servoy
 Getting started
 -------------
 
-Get the latest version from the [releases](https://github.com/Servoy/office365/releases). Download and import the [office365.servoy](https://github.com/Servoy/svyChartJS/releases/download/v1.0.0-b1/office365$demo.servoy) example solution or check out source directly from github.
+Download and import the [office365.servoy](https://github.com/Servoy/office365/releases/download/v1.0.0-b1/office365.demo.servoy) example solution or check out source directly from github.
+Get the latest version from the [releases](https://github.com/Servoy/office365/releases). 
 
 Documentation
 -------------
