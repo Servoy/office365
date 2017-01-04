@@ -83,6 +83,16 @@ typeid:47,
 uuid:"7D3CB7CA-92E9-4B7E-A728-BBA7988E7D1A"
 },
 {
+anchors:3,
+displaysTags:true,
+location:"203,78",
+name:"search",
+size:"24,28",
+text:"<span class=\"glyphicon glyphicon-search\"/>",
+typeid:7,
+uuid:"84534223-C3B4-426D-8DE2-1268556B49A5"
+},
+{
 height:455,
 partType:5,
 typeid:19,

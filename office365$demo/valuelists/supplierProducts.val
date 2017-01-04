@@ -1,0 +1,10 @@
+addEmptyValue:1,
+dataProviderID1:"productid",
+dataProviderID2:"productname",
+name:"supplierProducts",
+relationName:"suppliers_to_products",
+returnDataProviders:1,
+showDataProviders:2,
+typeid:34,
+uuid:"5924DF91-DDA8-46CA-B4C7-DC5AB9541466",
+valueListType:1

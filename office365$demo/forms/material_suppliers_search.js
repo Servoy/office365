@@ -74,7 +74,7 @@ function onDataChangeSupplier(oldValue, newValue, event) {
 		foundset.supplierid = $supplierid;
 		foundset.search();
 	}
-	
+	// $supplierid = null;
 	return true;
 }
 
