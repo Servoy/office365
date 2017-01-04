@@ -1,4 +1,11 @@
 /**
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"11BC7DD5-8871-47D3-9660-E24674F0FDD2"}
+ */
+var searchProduct = null;
+
+/**
 
  * @protected
  *
@@ -16,4 +23,22 @@ function onSwipeLeft() {
  */
 function onSwipeRight() {
 	foundset.setSelectedIndex(foundset.getSelectedIndex() - 1)
+}
+
+/**
+ * Perform the element default action.
+ *
+ * @param {JSEvent} event the event that triggered the action
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"AE877419-9231-447B-AA41-AC4D757B6B76"}
+ * @AllowToRunInFind
+ */
+function onSearch(event) {
+	if (searchProduct) {
+		foundset.selectRecord(searchProduct)
+		// searchProduct  = null;
+	}
+	return true;
 }

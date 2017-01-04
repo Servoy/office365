@@ -22,3 +22,15 @@ var INSERT_LOCATION = {
 	START: "start",
 	REPLACE: "replace"
 }
+
+/**
+ * @public 
+ * @enum 
+ * 
+ * @properties={typeid:35,uuid:"AFE2F112-0B5B-4FF6-9DCB-B62BD2E1B9AC",variableType:-4}
+ */
+var SELECTION_MODE = {
+	END: "end",
+	SELECT: "select",
+	START: "start"
+}

@@ -8,6 +8,7 @@
 		<project>office365</project>
 		<project>googlecharts</project>
 		<project>svyOffice365</project>
+		<project>svychartjs</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

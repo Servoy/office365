@@ -34,7 +34,8 @@ items:[
 {
 json:{
 containedForm:"267347B5-F6DC-49A6-B67B-05A9C355E3D1",
-height:500
+height:500,
+relationName:"suppliers_to_products"
 },
 name:"tablesspanel_chart",
 typeName:"bootstrapcomponents-tablesspanel",
@@ -86,7 +87,7 @@ json:{
 containedForm:"49CD60CE-9BAB-4320-AF97-E314843559DA",
 height:500
 },
-location:"2,2",
+location:"1,1",
 name:"tablesspanel_supplier",
 size:"100,100",
 typeName:"bootstrapcomponents-tablesspanel",
@@ -109,7 +110,8 @@ specname:\"column\"\
 items:[
 {
 json:{
-containedForm:"393DF859-71FC-472C-92D4-C77347740599"
+containedForm:"393DF859-71FC-472C-92D4-C77347740599",
+relationName:"suppliers_to_products"
 },
 location:"1,1",
 name:"tablesspanel_product",
