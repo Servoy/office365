@@ -1,7 +1,7 @@
 {
     "name":"office365",
     "displayName":"Office Javascript API for Servoy",
-    "packageType": "Web-Component",
+    "packageType": "Web-Service",
     "icon": "https://github.com/Servoy/office365/blob/master/office365/office365.jpg",
     "description": "This plugin enables the Javascript API for Office into a Servoy solution which can run as a Microsoft Office Add-In. Microsoft Office Add-in runs interactive HTML5 Web Application, as the Servoy NGClient, allowing you to write/read rich text from/to the document using the Office Javascript API.",
     "wikiUrl": "https://github.com/Servoy/office365/wiki",
