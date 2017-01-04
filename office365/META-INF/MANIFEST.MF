@@ -3,7 +3,6 @@ Bundle-SymbolicName: office365
 Bundle-Name: Office365 Javascript API
 Bundle-Version: 1.0.0
 Package-Type: Web-Service
-JS-ClientLibs: office365/lib/r.js;version=1.0;name=require.js
 
 Name: word/word.spec
 Web-Service: True

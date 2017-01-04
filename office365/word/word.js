@@ -1,8 +1,5 @@
 angular.module('office365Word', ['servoy']).factory("office365Word", ['$services', '$window', '$log', '$q', function($services, $window, $log, $q) {
 
-		// MANIFEST LINE: JS-ClientLibs: //appsforoffice.microsoft.com/lib/1/hosted/office.debug.js;version=2.2;name=office.js
-		// JS-ClientLibs: office365/lib/office.js;version=2.2;name=office.js,office365/lib/MicrosoftAjax.js;version=2.2;name=MicrosoftAjax.js,office365/lib/o15apptofilemappingtable.js;version=2.2;name=o15apptofilemappingtable.js
-
 		var scope = $services.getServiceScope('office365Word');
 		var Office = parent.Office;
 		var Word = parent.Word;
@@ -298,16 +295,5 @@ angular.module('office365Word', ['servoy']).factory("office365Word", ['$services
 			}
 		}
 	}]).run(function($rootScope, $services) {
-
-	//____logProvider.debugEnabled(true);
-
-	//	requirejs.config({
-	//		//By default load any module IDs from js/lib
-	//		baseUrl: '/'
-	//	});
-	//
-	//	requirejs(["office365/lib/office.debug.js", "office365/lib/MicrosoftAjax.debug.js"], function(util) {
-	//			$log.debug("officejs loaded");
-	//		});
 
 });
