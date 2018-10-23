@@ -23,6 +23,19 @@
 				}
 			]
 		},
+		"addRecipients":
+		{
+			"parameters":[
+				{
+					"name":"recipients",
+					"type":"string[]"
+				},
+				{
+					"name":"onError",
+					"type":"function"
+				}
+			]
+		},
 		"getSelectedMessageType":
 		{
 			"parameters":

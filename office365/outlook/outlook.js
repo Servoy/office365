@@ -41,14 +41,14 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 			displayNewMessageForm: function(toRecipients, ccRecipients, subject, htmlBody, attachments, onError) {
 
 				var officeResultDeferred = $q.defer();
-//
-//				if (!Office.context.requirements.isSetSupported('Mailbox', '1.6')) {
-//					//resolveError("Sorry, this add-in only works with newer versions of Outlook.", onError, officeResultDeferred);
-//					$log.error("Sorry, this add-in only works with newer versions of Outlook.");
-//				} else {
-//					//resolveError("ok", onError, officeResultDeferred);
-//					$log.error("yes initialized")
-//				}
+				//
+				//				if (!Office.context.requirements.isSetSupported('Mailbox', '1.6')) {
+				//					//resolveError("Sorry, this add-in only works with newer versions of Outlook.", onError, officeResultDeferred);
+				//					$log.error("Sorry, this add-in only works with newer versions of Outlook.");
+				//				} else {
+				//					//resolveError("ok", onError, officeResultDeferred);
+				//					$log.error("yes initialized")
+				//				}
 
 				// toRecipients: [{'emailAddress':'test@com.com','displayName':'Paolo Aronne','recipientType':'externalUser'}];
 
@@ -74,15 +74,15 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						subject: subject,
 						htmlBody: htmlBody
 					}
-					
+
 					// if there are attachments
 					if (paramAttachments && paramAttachments.length) {
 						params.attachments = paramAttachments;
-						
+
 						//resolveError(paramAttachments[0].url, onError, officeResultDeferred);
 						//return;
 					}
-					
+
 					Office.context.mailbox.displayNewMessageForm(params);
 
 					officeResultDeferred.resolve(JSON.stringify(Office.context.mailbox.item.to));
@@ -93,6 +93,13 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						} else {
 							resolveError(result.error, onError, officeResultDeferred);
 						}
+
+						Office.context.mailbox.displayNewMessageForm({
+							//				    toRecipients: ["tyas@devoon.nl", "test1@devoon.nl"],
+							subject: subject,
+							htmlBody: htmlBody
+						});
+
 					}
 				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
@@ -100,6 +107,25 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				return officeResultDeferred.promise;
 			},
+            
+            addRecipients :function(recipients, onError){
+                
+                var officeResultDeferred = $q.defer();
+                
+                Outlook.run(function(ctx){
+                    
+                    var _res = ctx.mailbox.item.to.addAsync(recipients, function(result) {
+                        return result
+                    });
+                    
+                    return ctx.sync().then(function(){
+                        officeResultDeferred.resolve(_res)
+                    });
+                }).catch(function(e){
+                    resolveError(e,onError,officeResultDeferred)
+                });
+            },
+			
 			getSelectedMessageType: function(options, callback, onError) {
 
 				var officeResultDeferred = $q.defer();
