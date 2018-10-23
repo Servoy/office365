@@ -9,7 +9,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 			HTML: "html",
 			OOXML: "ooxml"
 		}		
-		
+				
 		var INSERT_LOCATION = { }
 
 		// does it make sense ?

@@ -7,10 +7,21 @@
 	],
 	"model":
 	{
+		"COERCION_TYPE":{"type":"coercionType", "default":{}},
 		"searchResult" : {"type": "object", "pushToServer": "allow", "tags": {"scope": "private"}}
  	},
  	"api":
  	{
+	   	"helloworld": 
+	   	{
+	    	"parameters":
+	    	[
+		    	{
+					"name":"text",
+					"type":"string"
+				}
+			]
+		},
 		"getSelectedMessageType":
 		{
 			"parameters":
@@ -71,5 +82,11 @@
 			],
 			"returns": "boolean"
 		}
+ 	},
+ 	"types":{
+ 		"coercionType":{
+ 			"TEXT":{"type":"string", "default":"text"},
+ 			"HTML":{"type":"string", "default":"html"}
+ 		}
  	}
 }

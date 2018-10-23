@@ -7,3 +7,5 @@ Package-Type: Web-Service
 Name: word/word.spec
 Web-Service: True
 
+Name: outlook/outlook.spec
+Web-Service: True
