@@ -7,6 +7,7 @@
 	],
 	"model":
 	{
+		"ATTACHMENT_TYPE":{"type":"attachmentType", "default":{}},
 		"COERCION_TYPE":{"type":"coercionType", "default":{}},
 		"searchResult" : {"type": "object", "pushToServer": "allow", "tags": {"scope": "private"}}
  	},
@@ -79,6 +80,9 @@
 					"name":"htmlBody",
 					"type":"text"
 				},{
+					"name":"attachments",
+					"type":"attachment[]"
+				},{
 					"name":"onError",
 					"type":"function"
 				}
@@ -111,6 +115,17 @@
  		"coercionType":{
  			"TEXT":{"type":"string", "default":"text"},
  			"HTML":{"type":"string", "default":"html"}
+ 		},
+ 		"attachmentType":{
+ 			"FILE":{"type":"string", "default":"file"},
+ 			"ITEM":{"type":"string", "default":"item"}
+ 		},
+ 		"attachment" : {
+ 			 "type":{"type":"string"},
+ 			 "name":{"type":"string"},
+ 			 "media":{"type":"media"},
+ 			 "isInline":{"type":"boolean"},
+ 			 "itemId":{"type":"string"}			
  		}
  	}
 }

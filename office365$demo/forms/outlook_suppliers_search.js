@@ -106,7 +106,14 @@ function onDataChangeSupplier(oldValue, newValue, event) {
  * @properties={typeid:24,uuid:"5AB0381D-8578-4716-B66A-411C1934A852"}
  */
 function onComposeEmail(event) {
-	var result = plugins.office365Outlook.displayNewMessageForm(toReceipients.split("\n"),null,subject,htmlBody, onError)
+	/** @type {office365-outlook.attachment} */
+	var attachment= new Object();
+	attachment.isInline = false;
+	attachment.name = "test.png";
+	attachment.type = plugins.office365Outlook.ATTACHMENT_TYPE.FILE;
+	//attachment.itemId = "testimage";
+	attachment.media = "media:///test.png";
+	var result = plugins.office365Outlook.displayNewMessageForm(toReceipients.split("\n"),null,subject,htmlBody, [attachment], onError)
 	if (result) {
 		application.output(result)
 	}
