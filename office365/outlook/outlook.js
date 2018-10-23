@@ -96,7 +96,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 				var officeResultDeferred = $q.defer();
 				try {
 
-					Office.context.mailbox.item.to.setAsync(['paronne@servoy.com'], function(result) {
+					Office.context.mailbox.item.to.addAsync(['paronne@servoy.com'], {test: "sample"}, function(result) {
 							if (result.error) {
 								if (onError) {
 									resolveError(JSON.stringify(result.error), onError, officeResultDeferred);
@@ -175,7 +175,24 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 				return officeResultDeferred.promise;
 			},
 
-			setSubject: function() { },
+			setSubject: function(subject, onError) {
+				var officeResultDeferred = $q.defer();
+				
+				try{
+					var message = Office.context.mailbox.item.subject.setAsync(subject, function(result){
+						if(result.error){
+							resolveError(result.error,onError,officeResultDeferred)
+						}
+						else{
+							officeResultDeferred.resolve(true)
+						}
+					})
+				}catch(e){
+					resolveError(e, onError, officeResultDeferred)
+				}
+				
+				return officeResultDeferred.promise;				
+			},
 
 			setBodyText: function(data, options, callback, onError) {
 

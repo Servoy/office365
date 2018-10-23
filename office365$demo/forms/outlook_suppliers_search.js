@@ -141,9 +141,9 @@ function btnCancelSearchField(event) {
 function onAddRecepients() {
 	
 	/** @type {Array<office365-outlook.recipient>} */
-	var recepients = [{displayName: "test", emailAddress: "paronne@servoy.com"}]
+//	var recepients = [{displayName: "test", emailAddress: "paronne@servoy.com"}]
 	
-	var result = plugins.office365Outlook.addRecipients(recepients,onError)
+	var result = plugins.office365Outlook.setSubject('test',onError)
 	if (result) {
 		application.output(result)
 	}

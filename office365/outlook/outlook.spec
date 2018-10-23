@@ -123,6 +123,18 @@
 				}
 			],
 			"returns": "boolean"
+		},
+		"setSubject":{
+			"parameters":[
+				{
+					"name":"subject",
+					"type":"string"
+				},
+				{
+					"name":"onError",
+					"type":"function"
+				}
+			]
 		}
  	},
  	"types":{
