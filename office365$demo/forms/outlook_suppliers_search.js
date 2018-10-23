@@ -131,3 +131,20 @@ function onComposeEmail(event) {
 function btnCancelSearchField(event) {
 	$supplierid = null;
 }
+
+/**
+
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"869E08BF-B4AD-4E27-95A7-51D30FF747CD"}
+ */
+function onAddRecepients() {
+	
+	/** @type {Array<office365-outlook.recipient>} */
+	var recepients = [{displayName: "test", emailAddress: "paronne@servoy.com"}]
+	
+	var result = plugins.office365Outlook.addRecipients(recepients,onError)
+	if (result) {
+		application.output(result)
+	}
+}

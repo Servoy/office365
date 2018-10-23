@@ -71,9 +71,8 @@ typeid:47,
 uuid:"AB912209-D452-4D60-91BC-085C89394971"
 },
 {
-anchors:11,
 json:{
-anchors:11,
+anchors:0,
 location:{
 x:21,
 y:327
@@ -81,17 +80,39 @@ y:327
 onActionMethodID:"5AB0381D-8578-4716-B66A-411C1934A852",
 size:{
 height:47,
-width:209
+width:110
 },
 styleClass:"md-raised md-primary",
 text:"Compose Email",
 transparent:false
 },
 location:"21,327",
-size:"209,47",
+size:"110,47",
 typeName:"angularmaterial-mdbutton",
 typeid:47,
 uuid:"DC25EC12-A2EF-46EE-BC4F-8F695F5C7C30"
+},
+{
+json:{
+anchors:0,
+location:{
+x:135,
+y:328
+},
+onActionMethodID:"869E08BF-B4AD-4E27-95A7-51D30FF747CD",
+size:{
+height:47,
+width:110
+},
+styleClass:"md-raised md-primary",
+text:"Add Receipients",
+transparent:false
+},
+location:"135,328",
+size:"110,47",
+typeName:"angularmaterial-mdbutton",
+typeid:47,
+uuid:"F9099204-79E6-4B2A-A9F0-6AE751BF09DD"
 }
 ],
 name:"outlook_suppliers_search",

@@ -28,13 +28,14 @@
 			"parameters":[
 				{
 					"name":"recipients",
-					"type":"string[]"
+					"type":"recipient[]"
 				},
 				{
 					"name":"onError",
 					"type":"function"
 				}
-			]
+			],
+			"returns": "boolean"
 		},
 		"getSelectedMessageType":
 		{
@@ -139,6 +140,11 @@
  			 "media":{"type":"media"},
  			 "isInline":{"type":"boolean"},
  			 "itemId":{"type":"string"}			
+ 		},
+ 		"recipient" : {
+ 			 "displayName":{"type":"string"},
+ 			 "emailAddress":{"type":"string"},
+ 			 "recipientType":{"type":"string"}	
  		}
  	}
 }
