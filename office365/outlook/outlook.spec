@@ -61,6 +61,30 @@
 			],
 			"returns": "object"
 		},
+		"displayNewMessageForm":{
+			"parameters":[
+				{
+					"name":"toRecipients",
+					"type":"string[]"
+				},
+				{
+					"name":"ccRecipients",
+					"type":"string[]"
+				},
+				{
+					"name":"subject",
+					"type":"string"
+				},
+				{
+					"name":"htmlBody",
+					"type":"text"
+				},{
+					"name":"onError",
+					"type":"function"
+				}
+			],
+			"returns": "object"
+		},
 		"setBodyText":{
 			"parameters": [
 				{
