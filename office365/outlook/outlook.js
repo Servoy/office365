@@ -41,16 +41,6 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 			displayNewMessageForm: function(toRecipients, ccRecipients, subject, htmlBody, attachments, onError) {
 
 				var officeResultDeferred = $q.defer();
-				//
-				//				if (!Office.context.requirements.isSetSupported('Mailbox', '1.6')) {
-				//					//resolveError("Sorry, this add-in only works with newer versions of Outlook.", onError, officeResultDeferred);
-				//					$log.error("Sorry, this add-in only works with newer versions of Outlook.");
-				//				} else {
-				//					//resolveError("ok", onError, officeResultDeferred);
-				//					$log.error("yes initialized")
-				//				}
-
-				// toRecipients: [{'emailAddress':'test@com.com','displayName':'Paolo Aronne','recipientType':'externalUser'}];
 
 				// parse the servoy attachments
 				var paramAttachments = [];
@@ -107,114 +97,362 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				return officeResultDeferred.promise;
 			},
-            
-            addRecipients :function(recipients, onError){
-                
-                var officeResultDeferred = $q.defer();
-                
-                Outlook.run(function(ctx){
-                    
-                    var _res = ctx.mailbox.item.to.addAsync(recipients, function(result) {
-                        return result
-                    });
-                    
-                    return ctx.sync().then(function(){
-                        officeResultDeferred.resolve(_res)
-                    });
-                }).catch(function(e){
-                    resolveError(e,onError,officeResultDeferred)
-                });
-            },
-			
-			getSelectedMessageType: function(options, callback, onError) {
+
+			addRecipients: function(recipients, onError) {
 
 				var officeResultDeferred = $q.defer();
 
-				Outlook.run(function(ctx) {
+				recipients = parent.deepCopyArray(recipients);
 
-					var message = ctx.mailbox.item;
+				try {
+					Office.context.mailbox.item.to.addAsync(recipients, function(result) {
 
-					var messageType = message.body.getTypeAsync(options, callback)
+							if (result.error) {
+								if (onError) {
+									resolveError(JSON.stringify(result.error), onError, officeResultDeferred);
+								}
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						});
 
-					return ctx.sync().then(function() {
-						officeResultDeferred.resolve(messageType);
-					});
-				}).catch(function(e) {
+				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
-				});
+				}
 
 				return officeResultDeferred.promise;
 			},
 
-			getSelectedMessageBody: function(coercionType, options, callback, onError) {
+			addCCRecipients: function(recipients, onError) {
 
 				var officeResultDeferred = $q.defer();
-				Outlook.run(function(ctx) {
+
+				recipients = parent.deepCopyArray(recipients);
+
+				try {
+
+					Office.context.mailbox.item.cc.addAsync(recipients, function(result) {
+
+							if (result.error) {
+								if (onError) {
+									resolveError(JSON.stringify(result.error), onError, officeResultDeferred);
+								}
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						});
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			addBCCRecipients: function(recipients, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				recipients = parent.deepCopyArray(recipients);
+
+				try {
+
+					Office.context.mailbox.item.bcc.addAsync(recipients, function(result) {
+							if (result.error) {
+								if (onError) {
+									resolveError(JSON.stringify(result.error), onError, officeResultDeferred);
+								}
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						});
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			getSelectedMessageType: function(onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
+					var message = Office.context.mailbox.item;
+
+					message.body.getTypeAsync({ }, function(result) {
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred);
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(result);
+							}
+						})
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			getSelectedMessageBody: function(coercionType, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
+					coercionType = typeof coercionType === undefined || coercionType == 'html' ? /*Office.CoercionType.Text*/ 'text' : coercionType;
+
+					var message = Office.context.mailbox.item;
+					if (typeof message.body.getAsync === "function") {
+						var bodyText = message.body.getAsync(coercionType, { }, function(result) {
+								if (result.error) {
+									resolveError(result.error, onError, officeResultDeferred)
+									officeResultDeferred.resolve(false)
+								} else {
+									officeResultDeferred.resolve(result)
+								}
+							})
+					} else {
+						officeResultDeferred.resolve(message.body)
+					}
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			getSelectedMessageSubject: function(onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+
+					var message = Office.context.mailbox.item;
+
+					if (typeof message.subject.getAsync === "function") {
+						message.subject.getAsync(function(result) {
+							if (result.error) {
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(result);
+							}
+						});
+					} else {
+						officeResultDeferred.resolve(message.subject)
+					}
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			setSubject: function(subject, onError) {
+				var officeResultDeferred = $q.defer();
+
+				try {
+					Office.context.mailbox.item.subject.setAsync(subject, function(result) {
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred)
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						})
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			setBodyText: function(text, coercionType, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
 
 					coercionType = typeof coercionType === 'undefined' ? Office.CoercionType.Text : coercionType;
 
-					var message = ctx.mailbox.item;
+					var messageBody = Office.context.mailbox.item.body;
 
-					var bodyText = message.body.getAsync(coercionType, options, callback)
+					messageBody.setAsync(text, { coercionType: coercionType }, function(result) {
 
-					return ctx.sync().then(function() {
-						officeResultDeferred.resolve(message);
-					});
-				}).catch(function(e) {
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred)
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						});
+
+				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
-				});
+				}
 
 				return officeResultDeferred.promise;
 			},
 
-			getSelectedMessageSubject: function() {
+			prependBodyText: function(text, coercionType, onError) {
+
 				var officeResultDeferred = $q.defer();
-				Outlook.run(function(ctx) {
+
+				try {
 
 					coercionType = typeof coercionType === 'undefined' ? Office.CoercionType.Text : coercionType;
 
-					var message = ctx.mailbox.item;
+					var messageBody = Office.context.mailbox.item.body;
 
-					var messageSubject = ctx.mailbox.item
+					messageBody.prependAsync(text, { coercionType: coercionType }, function(result) {
 
-					return ctx.sync().then(function() {
-						officeResultDeferred.resolve(messageSubject);
-					});
-				}).catch(function(e) {
-					resolveError(e, onError, officeResultDeferred)
-				});
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred);
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+
+						});
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
 
 				return officeResultDeferred.promise;
 			},
 
-			setSubject: function() { },
-
-			setBodyText: function(data, options, callback, onError) {
+			setSelectedText: function(text, coercionType, onError) {
 
 				var officeResultDeferred = $q.defer();
-				Outlook.run(function(ctx) {
 
-					var messageBody = ctx.mailbox.item.body;
+				try {
 
-					messageBody.setAsync(data, options, callback);
+					coercionType = typeof coercionType === 'undefined' ? Office.CoercionType.Text : coercionType;
 
-					return ctx.sync().then(function() {
-						officeResultDeferred.resolve(true);
-					})
-				}).catch(function(e) {
+					var message = Office.context.mailbox.item;
+
+					message.setSelectedDataAsync(text, { coercionType: coercionType }, function(result) {
+
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred);
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+
+						})
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			addAttachment: function(file, attachmentName, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				var base64regex = /^([0-9a-zA-Z+\/]{4})*(([0-9a-zA-Z+\/]{2}==)|([0-9a-zA-Z+\/]{3}=))?$/;
+
+				try {
+
+					var message = Office.context.mailbox.item;
+
+					var _bIsBase64 = base64regex.test(file);
+					if (_bIsBase64) {
+						message.addFileAttachmentFromBase64Async(file, attachmentName, null, function(result) {
+								if (result.error) {
+									resolveError(result.error, onError, officeResultDeferred);
+									officeResultDeferred.resolve(false);
+								} else {
+									officeResultDeferred.resolve(true);
+								}
+							});
+					} else {
+						message.addFileAttachmentAsync(file, attachmentName, null, function(result) {
+								if (result.error) {
+									resolveError(result.error, onError, officeResultDeferred);
+									officeResultDeferred.resolve(false);
+								} else {
+									officeResultDeferred.resolve(true);
+								}
+							});
+					}
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
+
+				return officeResultDeferred.promise;
+			},
+			getAttachments: function(onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
+					var result = []
+
+					var message = Office.context.mailbox.item;
+
+					if (typeof message.getAttachmentsAsync === "function") {
+						message.getAttachmentsAsync(function(result) {
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred)
+							} else {
+								var obj = new Object();
+								for (var i = 0; i < result.value.length; i++) {
+									var obj = new Object();
+									for (var key in result.value[i]) {
+										obj[key] = result.value[i][key];
+									}
+									result.push(obj);
+								}
+								officeResultDeferred.resolve(result);
+							}
+						})
+					} else {
+						for (var i = 0; i < message.attachments.length; i++) {
+							var obj = new Object();
+							for (var key in message.attachments[i]) {
+								obj[key] = message.attachments[i][key];
+							}
+							result.push(obj);
+						}
+						officeResultDeferred.resolve(result);
+					}
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred);
+				}
+
+				return officeResultDeferred.promise;
+			},
+
+			getAttachmentContent: function(attachmentId, onError) {
+
+				var officeResultDeferred = $q.defer();
+
+				try {
+
+					var message = Office.context.mailbox.item;
+
+					message.getAttachmentContentAsync(attachmentId, { }, function(result) {
+							if (result.error) {
+								resolveError(result.error, onError, officeResultDeferred);
+							} else {
+								officeResultDeferred.resolve(result);
+							}
+						});
+
+				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
-				});
+				}
+
+				return officeResultDeferred.promise;
 			}
 		}
-	}]).run(function($rootScope, $services, $log) {
-
-	//		Office.onReady()
-	//	    .then(function() {
-	//	        if (!Office.context.requirements.isSetSupported('OutlookApi', '1.6')) {
-	//	            $log.warn("Sorry, this add-in only works with newer versions of Outlook.");
-	//	        } else {
-	//	        	$log.warn("yes initialized")
-	//	        }
-	//	    });
-
-})
+	}]).run(function($rootScope, $services, $log) { })
