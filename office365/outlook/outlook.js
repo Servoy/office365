@@ -366,7 +366,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 					var _bIsBase64 = base64regex.test(file);
 					if (_bIsBase64) {
-						message.addFileAttachmentFromBase64Async(file, attachmentName, null, function(result) {
+						message.addFileAttachmentFromBase64Async(file, attachmentName, {}, function(result) {
 								if (result.error) {
 									resolveError(result.error, onError, officeResultDeferred);
 									officeResultDeferred.resolve(false);
@@ -375,7 +375,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 								}
 							});
 					} else {
-						message.addFileAttachmentAsync(file, attachmentName, null, function(result) {
+						message.addFileAttachmentAsync(file, attachmentName, {}, function(result) {
 								if (result.error) {
 									resolveError(result.error, onError, officeResultDeferred);
 									officeResultDeferred.resolve(false);
@@ -417,11 +417,11 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						})
 					} else {
 						for (var i = 0; i < message.attachments.length; i++) {
-							var obj = new Object();
+							var attachment = {};
 							for (var key in message.attachments[i]) {
-								obj[key] = message.attachments[i][key];
+								attachment[key] = message.attachments[i][key];
 							}
-							result.push(obj);
+							result.push(attachment);
 						}
 						officeResultDeferred.resolve(result);
 					}
