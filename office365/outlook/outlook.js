@@ -182,7 +182,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 				return officeResultDeferred.promise;
 			},
 
-			getSelectedMessageType: function(onError) {
+			getSelectedMessageBodyType: function(onError) {
 
 				var officeResultDeferred = $q.defer();
 
