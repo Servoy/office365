@@ -109,7 +109,7 @@
 			]
 		},
 
-		"getSelectedMessageType": 
+		"getSelectedMessageBodyType": 
 		{
 			"parameters": 
 			[
