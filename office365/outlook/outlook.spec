@@ -389,9 +389,9 @@
 
 		"attachment": 
 		{
-			"attachmentType": 
+			"type": 
 			{
-				"type": "attachmentType"
+				"type": "string"
 			},
 
 			"contentType": 
@@ -417,6 +417,10 @@
 			"size": 
 			{
 				"type": "double"
+			},
+			"url": 
+			{
+				"type": "string"
 			}
 		},
 

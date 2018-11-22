@@ -51,7 +51,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						name: attachment.name,
 						itemId: attachment.itemId,
 						isInline: attachment.isInline ? true : false,
-						url: attachment.media ? 'http://localhost:8080/' + attachment.media : null
+						url: attachment.url//attachment.media ? 'http://localhost:8080/' + attachment.media : null
 					}
 
 					paramAttachments.push(paramAttachment);
@@ -59,15 +59,15 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				try {
 					var params = {
-						toRecipients: Office.context.mailbox.item.to, // Copy the To line from current item
-						ccRecipients: Office.context.mailbox.item.to, // Copy the To line from current item
+						toRecipients: parent.deepCopyArray(toRecipients), // Copy the To line from current item
+						ccRecipients: parent.deepCopyArray(ccRecipients), // Copy the To line from current item
 						subject: subject,
 						htmlBody: htmlBody
 					}
 
 					// if there are attachments
 					if (paramAttachments && paramAttachments.length) {
-						params.attachments = paramAttachments;
+						params.attachments = parent.deepCopyArray(paramAttachments);
 					}
 
 					Office.context.mailbox.displayNewMessageForm(params);

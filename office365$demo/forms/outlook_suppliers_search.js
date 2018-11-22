@@ -109,10 +109,10 @@ function onComposeEmail(event) {
 	/** @type {office365-outlook.attachment} */
 	var attachment= new Object();
 	attachment.isInline = false;
-	attachment.name = "test.png";
-	attachment.type = plugins.office365Outlook.ATTACHMENT_TYPE.FILE;
+	attachment.name = "sample.pdf";
+	attachment.type = "file"
 	//attachment.itemId = "testimage";
-	attachment.media = "media:///test.png";
+	attachment.url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 	var result = plugins.office365Outlook.displayNewMessageForm(toReceipients.split("\n"),null,subject,htmlBody, [attachment], onError)
 	if (result) {
 		application.output(result)
