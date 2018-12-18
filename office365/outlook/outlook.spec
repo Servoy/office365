@@ -37,7 +37,7 @@
 			}
 		},
 
-		"searchResult":
+		"searchResult": 
 		{
 			"type": "object",
 			"pushToServer": "allow",
@@ -326,6 +326,32 @@
 			],
 
 			"returns": "object"
+		},
+
+		"saveItem": 
+		{
+			"parameters": 
+			[
+				{
+					"name": "onError",
+					"type": "function"
+				}
+			],
+
+			"returns": "string"
+		},
+
+		"getEWSServer": 
+		{
+			"parameters":
+			[
+				{
+					"name": "onError",
+					"type": "function"
+				}
+			],
+			
+			"returns": "string"
 		}
 	},
 

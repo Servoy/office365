@@ -366,7 +366,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 					var _bIsBase64 = base64regex.test(file);
 					if (_bIsBase64) {
-						message.addFileAttachmentFromBase64Async(file, attachmentName, {}, function(result) {
+						message.addFileAttachmentFromBase64Async(file, attachmentName, { }, function(result) {
 								if (result.error) {
 									resolveError(result.error, onError, officeResultDeferred);
 									officeResultDeferred.resolve(false);
@@ -375,7 +375,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 								}
 							});
 					} else {
-						message.addFileAttachmentAsync(file, attachmentName, {}, function(result) {
+						message.addFileAttachmentAsync(file, attachmentName, { }, function(result) {
 								if (result.error) {
 									resolveError(result.error, onError, officeResultDeferred);
 									officeResultDeferred.resolve(false);
@@ -417,7 +417,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						})
 					} else {
 						for (var i = 0; i < message.attachments.length; i++) {
-							var attachment = {};
+							var attachment = { };
 							for (var key in message.attachments[i]) {
 								attachment[key] = message.attachments[i][key];
 							}
@@ -452,6 +452,45 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 					resolveError(e, onError, officeResultDeferred)
 				}
 
+				return officeResultDeferred.promise;
+			},
+
+			saveItem: function(onError) {
+				
+				var officeResultDeferred = $q.defer();
+
+				try {
+					
+					var message = Office.context.mailbox.item;
+
+					message.saveAsync({},function(result) {
+						if (result.error) {
+							resolveError(result.error, onError, officeResultDeferred);
+						} else {
+							officeResultDeferred.resolve(result.value)
+						}
+					})
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+				
+				return officeResultDeferred.promise;
+			},
+
+			getEWSServer: function(onError) {
+				
+				var officeResultDeferred = $q.defer();
+				
+				try{
+					
+					var mailBox = Office.context.mailbox
+					
+					officeResultDeferred.resolve(mailBox.ewsUrl);
+				}
+				catch(e){
+					resolveError(e,onError,officeResultDeferred)
+				}
+				
 				return officeResultDeferred.promise;
 			}
 		}
