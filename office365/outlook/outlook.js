@@ -51,7 +51,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 						name: attachment.name,
 						itemId: attachment.itemId,
 						isInline: attachment.isInline ? true : false,
-						url: attachment.media ? 'http://localhost:8080/' + attachment.media : null
+						url: attachment.url//attachment.media ? 'http://localhost:8080/' + attachment.media : null
 					}
 
 					paramAttachments.push(paramAttachment);
@@ -59,38 +59,21 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				try {
 					var params = {
-						toRecipients: Office.context.mailbox.item.to, // Copy the To line from current item
-						ccRecipients: Office.context.mailbox.item.to, // Copy the To line from current item
+						toRecipients: parent.deepCopyArray(toRecipients), // Copy the To line from current item
+						ccRecipients: parent.deepCopyArray(ccRecipients), // Copy the To line from current item
 						subject: subject,
 						htmlBody: htmlBody
 					}
 
 					// if there are attachments
 					if (paramAttachments && paramAttachments.length) {
-						params.attachments = paramAttachments;
-
-						//resolveError(paramAttachments[0].url, onError, officeResultDeferred);
-						//return;
+						params.attachments = parent.deepCopyArray(paramAttachments);
 					}
 
 					Office.context.mailbox.displayNewMessageForm(params);
 
 					officeResultDeferred.resolve(JSON.stringify(Office.context.mailbox.item.to));
 
-					function getSelectedDataCallback(result) {
-						if (result.status === Office.AsyncResultStatus.Succeeded) {
-							officeResultDeferred.resolve(result.value);
-						} else {
-							resolveError(result.error, onError, officeResultDeferred);
-						}
-
-						Office.context.mailbox.displayNewMessageForm({
-							//				    toRecipients: ["tyas@devoon.nl", "test1@devoon.nl"],
-							subject: subject,
-							htmlBody: htmlBody
-						});
-
-					}
 				} catch (e) {
 					resolveError(e, onError, officeResultDeferred)
 				}
@@ -100,6 +83,28 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 			addRecipients: function(recipients, onError) {
 
+				var officeResultDeferred = $q.defer();
+				try {
+
+					Office.context.mailbox.item.to.addAsync(['paronne@servoy.com'], {test: "sample"}, function(result) {
+							if (result.error) {
+								if (onError) {
+									resolveError(JSON.stringify(result.error), onError, officeResultDeferred);
+								}
+								officeResultDeferred.resolve(false);
+							} else {
+								officeResultDeferred.resolve(true);
+							}
+						});
+
+				} catch (e) {
+					resolveError(e, onError, officeResultDeferred)
+				}
+
+				return officeResultDeferred.promise;
+			},
+			
+			addRecipients: function(recipients, onError) {
 				var officeResultDeferred = $q.defer();
 
 				recipients = parent.deepCopyArray(recipients);
@@ -123,7 +128,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				return officeResultDeferred.promise;
 			},
-
+			
 			addCCRecipients: function(recipients, onError) {
 
 				var officeResultDeferred = $q.defer();
@@ -298,7 +303,7 @@ angular.module('office365Outlook', ['servoy']).factory("office365Outlook", ['$se
 
 				return officeResultDeferred.promise;
 			},
-
+			
 			prependBodyText: function(text, coercionType, onError) {
 
 				var officeResultDeferred = $q.defer();

@@ -109,10 +109,10 @@ function onComposeEmail(event) {
 	/** @type {office365-outlook.attachment} */
 	var attachment= new Object();
 	attachment.isInline = false;
-	attachment.name = "test.png";
-	attachment.type = plugins.office365Outlook.ATTACHMENT_TYPE.FILE;
+	attachment.name = "sample.pdf";
+	attachment.type = "file"
 	//attachment.itemId = "testimage";
-	attachment.media = "media:///test.png";
+	attachment.url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 	var result = plugins.office365Outlook.displayNewMessageForm(toReceipients.split("\n"),null,subject,htmlBody, [attachment], onError)
 	if (result) {
 		application.output(result)
@@ -130,4 +130,21 @@ function onComposeEmail(event) {
  */
 function btnCancelSearchField(event) {
 	$supplierid = null;
+}
+
+/**
+
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"869E08BF-B4AD-4E27-95A7-51D30FF747CD"}
+ */
+function onAddRecepients() {
+	
+	/** @type {Array<office365-outlook.recipient>} */
+//	var recepients = [{displayName: "test", emailAddress: "paronne@servoy.com"}]
+	
+	var result = plugins.office365Outlook.setSubject('test',onError)
+	if (result) {
+		application.output(result)
+	}
 }

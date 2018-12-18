@@ -69,12 +69,12 @@
 					"name": "recipients",
 					"type": "recipient[]"
 				},
-
 				{
 					"name": "onError",
 					"type": "function"
 				}
-			]
+			],
+			"returns": "boolean"
 		},
 
 		"addCCRecipients": 
@@ -188,23 +188,6 @@
 				}
 			]
 		},
-
-		"setSubject": 
-		{
-			"parameters": 
-			[
-				{
-					"name": "subject",
-					"type": "string"
-				},
-
-				{
-					"name": "onError",
-					"type": "function"
-				}
-			]
-		},
-
 		"setBodyText": 
 		{
 			"parameters": 
@@ -273,7 +256,18 @@
 
 			"returns": "boolean"
 		},
-
+		"setSubject":{
+			"parameters":[
+				{
+					"name":"subject",
+					"type":"string"
+				},
+				{
+					"name":"onError",
+					"type":"function"
+				}
+			]
+		},
 		"addAttachment": 
 		{
 			"parameters": 
@@ -354,7 +348,6 @@
 			"returns": "string"
 		}
 	},
-
 	"types": 
 	{
 		"coercionType": 
@@ -422,9 +415,9 @@
 
 		"attachment": 
 		{
-			"attachmentType": 
+			"type": 
 			{
-				"type": "attachmentType"
+				"type": "string"
 			},
 
 			"contentType": 
@@ -450,6 +443,10 @@
 			"size": 
 			{
 				"type": "double"
+			},
+			"url": 
+			{
+				"type": "string"
 			}
 		},
 
